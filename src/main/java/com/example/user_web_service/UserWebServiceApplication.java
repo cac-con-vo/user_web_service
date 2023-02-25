@@ -2,6 +2,7 @@ package com.example.user_web_service;
 
 import com.example.user_web_service.entity.Role;
 import com.example.user_web_service.entity.User;
+import com.example.user_web_service.entity.UserStatus;
 import com.example.user_web_service.helper.Constant;
 import com.example.user_web_service.repository.UserRepository;
 import com.example.user_web_service.service.RoleService;
@@ -22,10 +23,7 @@ public class UserWebServiceApplication {
         SpringApplication.run(UserWebServiceApplication.class, args);
     }
 
-    @Bean
-    PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+
 
     @Autowired
     RoleService roleService;
@@ -60,9 +58,9 @@ public class UserWebServiceApplication {
             firstAdmin.setPhone("0906679963");
             firstAdmin.setPassword(new BCryptPasswordEncoder().encode("admin123456"));
 
-            firstAdmin.setCreatedDate(Constant.getCurrentDateTime());
-            firstAdmin.setModifiedDate(null);
-            firstAdmin.setStatus(Constant.ACTIVE_STATUS);
+            firstAdmin.setCreateAt(Constant.getCurrentDateTime());
+            firstAdmin.setUpdateAt(null);
+            firstAdmin.setStatus(UserStatus.ACTIVE);
             userRepository.save(firstAdmin);
         }
     }

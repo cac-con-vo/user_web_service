@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -29,7 +30,7 @@ import java.util.List;
 
 })
 @JsonIgnoreProperties({"hibernateLazyInitializer"})
-public class User extends EntityBase  implements UserDetails {
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", updatable = false, nullable = false)
@@ -49,18 +50,18 @@ public class User extends EntityBase  implements UserDetails {
     @Lob
     private String avatar;
 
-    @Column(name = "dob")
-    private Date dob;
-
-    @Column(name = "phone")
-    private String phone;
-
-
+    @Email
     private String email;
 
-
-    @Column(name = "code")
+    private String phone;
     private String code;
+
+    private UserStatus status;
+
+    private Date createAt;
+
+    private Date updateAt;
+
 
 
     @ManyToOne
@@ -68,38 +69,5 @@ public class User extends EntityBase  implements UserDetails {
     private Role role;
 
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.getName()));
-    }
 
-    @Override
-    public String getUsername() {
-        return username;
-    }
-
-    @Override
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
 }

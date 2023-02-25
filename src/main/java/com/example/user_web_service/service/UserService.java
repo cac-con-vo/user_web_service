@@ -3,9 +3,11 @@ package com.example.user_web_service.service;
 import com.example.user_web_service.controller.BaseController;
 import com.example.user_web_service.entity.Role;
 import com.example.user_web_service.entity.User;
+import com.example.user_web_service.entity.UserStatus;
 import com.example.user_web_service.exception.AuthenticateException;
 import com.example.user_web_service.exception.DuplicateException;
 import com.example.user_web_service.exception.NotFoundException;
+import com.example.user_web_service.exception.UserNotFoundException;
 import com.example.user_web_service.form.*;
 import com.example.user_web_service.helper.Constant;
 import com.example.user_web_service.helper.EmailService;
@@ -22,6 +24,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.validation.Valid;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
@@ -97,7 +100,7 @@ public class UserService extends BaseController {
         return true;
     }
 
-    public ResponseEntity<?> createUser(SignUpForm signUpForm) throws ParseException {
+    public ResponseEntity<?> createUser(@Valid SignUpForm signUpForm) throws ParseException {
         this.checkDuplicate(signUpForm.getPhone(), signUpForm.getEmail());
 
         User regUser = new User();
@@ -108,16 +111,13 @@ public class UserService extends BaseController {
 
         regUser.setUsername(signUpForm.getUsername());
         regUser.setPassword(this.generateHash(signUpForm.getPassword()));
-        regUser.setFirstName(signUpForm.getFirstname());
-        regUser.setLastName(signUpForm.getLastname());
+        regUser.setFirstName(signUpForm.getFirstName());
+        regUser.setLastName(signUpForm.getLastName());
         regUser.setEmail(signUpForm.getEmail());
         regUser.setPhone(signUpForm.getPhone());
-        regUser.setDob(Constant.DATE_FORMAT.parse(signUpForm.getDob()));
-
-
-        regUser.setCreatedDate(Constant.getCurrentDateTime());
-        regUser.setModifiedDate(null);
-        regUser.setStatus(Constant.ACTIVE_STATUS);
+        regUser.setCreateAt(Constant.getCurrentDateTime());
+        regUser.setUpdateAt(null);
+        regUser.setStatus(UserStatus.ACTIVE);
 
         userRepository.save(regUser);
 
@@ -133,11 +133,8 @@ public class UserService extends BaseController {
         updateUser.setLastName(updateUserForm.getLastname());
         updateUser.setEmail(updateUserForm.getEmail());
         updateUser.setPhone(updateUserForm.getPhone());
-        updateUser.setDob(Constant.DATE_FORMAT.parse(updateUserForm.getDob()));
-
-
-        updateUser.setCreatedDate(Constant.getCurrentDateTime());
-        updateUser.setModifiedDate(null);
+        updateUser.setUpdateAt(Constant.getCurrentDateTime());
+        updateUser.setUpdateAt(null);
 
         userRepository.save(updateUser);
 
@@ -177,7 +174,7 @@ public class UserService extends BaseController {
         return user;
     }
     public User getUserByUserName(String username) {
-        User user = userRepository.findByUsername(username);
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("Not found!"));
         if (user == null) {
             throw new AuthenticateException("username " + username + " is invalid");
         }
