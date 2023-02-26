@@ -62,12 +62,8 @@ public class User {
 
     private Date updateAt;
 
-
-
     @ManyToOne
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
-
-
 
 }
