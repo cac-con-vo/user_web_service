@@ -22,7 +22,6 @@ public class AttributeGroup {
     private Long id;
 
     private String name;
-    private double value;
     @JsonIgnore
     private String effect;
 
@@ -48,8 +47,4 @@ public class AttributeGroup {
         }
         effect += key + ":" + value + ",";
     }
-    @ManyToOne
-    @JsonIgnore
-    @JoinColumn(name = "character_id", nullable = false, referencedColumnName = "id")
-    private Character character;
 }

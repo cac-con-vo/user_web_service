@@ -33,8 +33,6 @@ public class CharacterServiceImpl implements CharacterService {
     private GameServerRepository gameServerRepository;
     @Autowired
     private GameTokenProvider gameTokenProvider;
-    @Autowired
-    private AttributeGroupRepository attributeGroupRepository;
     @Override
     public ResponseEntity<ResponseObject> creatCharacter(String name, String serverName) {
         Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -103,11 +101,7 @@ public class CharacterServiceImpl implements CharacterService {
                     Character character = characterRepository.findByUserAndGameServer(user, server).orElseThrow(
                             ()-> new NotFoundException("Character not found.")
                     );
-//                    List<AttributeGroup> attributes = attributeGroupRepository.findAllByCharacter(character).orElseThrow(
-//                            ()-> new NotFoundException("Attribute of character not found.")
-//                    );
-                    ModelMapper modelMapper = new ModelMapper();
-                    return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ResponseObject(HttpStatus.ACCEPTED.toString(), "Get list game server  success!", null, character));
+                    return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ResponseObject(HttpStatus.ACCEPTED.toString(), "Get character successfully!", null, character));
                 })
                 .orElseThrow(() -> new RefreshTokenException("Game token is not in database!"));
     }

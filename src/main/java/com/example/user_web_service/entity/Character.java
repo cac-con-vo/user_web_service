@@ -50,6 +50,11 @@ public class Character {
     private CharacterType characterType;
 
     @OneToMany(mappedBy = "character")
-    private List<AttributeGroup> attributeGroups;
+    private List<CharacterAttribute> characterAttributes;
 
+    @OneToMany(mappedBy = "character")
+    private List<LevelProgress> levels;
+
+    @OneToMany(mappedBy = "character")
+    private List<Asset> assets;
 }

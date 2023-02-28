@@ -7,7 +7,6 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.List;
 
 @Entity
 @NoArgsConstructor
@@ -15,29 +14,21 @@ import java.util.List;
 @Setter
 @Getter
 @Builder
-@Table(name = "wallet")
-public class Wallet {
+@Table(name = "transactions")
+public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
 
-    private Long totalMoney;
+    private Long value;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateTimeUtils.DATETIME_FORMAT)
-    private Date update_at;
+    private Date create_at;
 
     @ManyToOne
     @JsonIgnore
-    @JoinColumn(name = "wallet_category_id", nullable = false, referencedColumnName = "id")
-    private WalletCategory walletCategory;
-
-    @ManyToOne
-    @JsonIgnore
-    @JoinColumn(name = "character_id", nullable = false, referencedColumnName = "id")
-    private Character character;
-
-    @OneToMany(mappedBy = "wallet")
-    private List<Transaction> transactions;
+    @JoinColumn(name = "wallet_id", nullable = false, referencedColumnName = "id")
+    private Wallet wallet;
 }
