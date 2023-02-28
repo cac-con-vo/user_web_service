@@ -1,4 +1,4 @@
-package com.example.user_web_service.payload;
+package com.example.user_web_service.payload.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

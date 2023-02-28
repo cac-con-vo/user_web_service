@@ -6,12 +6,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.constraints.Pattern;
-
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class RefreshTokenForm {
+public class GameTokenForm {
+
     @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
-    private String refreshToken;
+    private String gameToken;
 }

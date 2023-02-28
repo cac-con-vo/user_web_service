@@ -174,7 +174,7 @@ public class UserService extends BaseController {
         return user;
     }
     public User getUserByUserName(String username) {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("Not found!"));
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username," not found!"));
         if (user == null) {
             throw new AuthenticateException("username " + username + " is invalid");
         }

@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,17 +65,17 @@ public class GameTokenProvider {
         gameTokenRepository.deleteAllByUser_Id(userId);
         return gameToken;
     }
-    public boolean authenticateGameToken(String token) {
-        GameToken gameToken = cacheManager.getCache("gameToken").get(DigestUtils.sha3_256Hex(token), GameToken.class);
-        if (gameToken != null && gameToken.getExpiryDate().isAfter(Instant.now())) {
-            String encryptedToken = DigestUtils.sha3_256Hex(token);
-            GameToken gameTokenEncrypt = gameTokenRepository.findByToken(encryptedToken).orElseThrow(()->new ResourceNotFoundException("Game token ", null, token));
-            if (gameTokenEncrypt != null && gameTokenEncrypt.getExpiryDate().isAfter(Instant.now())) {
-                return true;
-            }
-        }
-        return false;
-    }
+//    public boolean authenticateGameToken(String token) {
+//        GameToken gameToken = cacheManager.getCache("gameToken").get(DigestUtils.sha3_256Hex(token), GameToken.class);
+//        if (gameToken != null && gameToken.getExpiryDate().isAfter(Instant.now())) {
+//            String encryptedToken = DigestUtils.sha3_256Hex(token);
+//            GameToken gameTokenEncrypt = gameTokenRepository.findByToken(encryptedToken).orElseThrow(()->new ResourceNotFoundException("Game token ", null, token));
+//            if (gameTokenEncrypt != null && gameTokenEncrypt.getExpiryDate().isAfter(Instant.now())) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 
     @Transactional
     public void deleteByToken(String token) {

@@ -3,11 +3,15 @@ package com.example.user_web_service.service.impl;
 import com.example.user_web_service.dto.PrincipalDTO;
 import com.example.user_web_service.dto.ResponseObject;
 import com.example.user_web_service.entity.BlackAccessToken;
+import com.example.user_web_service.entity.GameServer;
+import com.example.user_web_service.entity.GameToken;
 import com.example.user_web_service.entity.RefreshToken;
+import com.example.user_web_service.form.GameTokenForm;
 import com.example.user_web_service.form.LoginForm;
 import com.example.user_web_service.form.LogoutForm;
 import com.example.user_web_service.form.RefreshTokenForm;
-import com.example.user_web_service.payload.RefreshTokenResponse;
+import com.example.user_web_service.payload.response.RefreshTokenResponse;
+import com.example.user_web_service.repository.GameServerRepository;
 import com.example.user_web_service.repository.UserRepository;
 import com.example.user_web_service.security.jwt.*;
 import com.example.user_web_service.security.userprincipal.Principal;
@@ -34,6 +38,7 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.Instant;
+import java.util.List;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -61,6 +66,8 @@ public class AuthServiceImpl implements AuthService {
     private BlackAccessTokenServiceImp blackAccessTokenServiceImp;
     @Autowired
     private UserService userService;
+    @Autowired
+    private GameServerRepository gameServerRepository ;
 
     public AuthServiceImpl(ModelMapper mapper) {
         this.mapper = mapper;
@@ -153,6 +160,21 @@ public class AuthServiceImpl implements AuthService {
 
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ResponseObject(HttpStatus.ACCEPTED.toString(), "Logout success!", null, new RefreshTokenResponse(null, null)));
     }
+
+    @Override
+    public ResponseEntity<ResponseObject> loginGame(GameTokenForm gameTokenForm) {
+            return  gameTokenProvider.findByToken(DigestUtils.sha3_256Hex(gameTokenForm.getGameToken()))
+                    .map(gameTokenProvider::verifyExpiration)
+                    .map(GameToken::getUser)
+                    .map(user -> {
+                        List<GameServer> gameServers =  gameServerRepository.findAllByUsers(user);
+                        return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ResponseObject(HttpStatus.ACCEPTED.toString(), "Get list game server  success!", null, gameServers));
+                    })
+                    .orElseThrow(() -> new RefreshTokenException("Game token is not in database!"));
+
+    }
+
+
     private void clearRefreshTokenCache(String refreshToken) {
         boolean result = cacheManager.getCache("refreshToken").evictIfPresent(refreshToken);
         if (result) {
