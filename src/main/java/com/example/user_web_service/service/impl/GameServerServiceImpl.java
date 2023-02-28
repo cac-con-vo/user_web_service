@@ -11,6 +11,7 @@ import com.example.user_web_service.helper.Constant;
 import com.example.user_web_service.repository.*;
 import com.example.user_web_service.security.userprincipal.Principal;
 import com.example.user_web_service.service.GameServerService;
+import io.grpc.lb.v1.ClientStats;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,11 +49,17 @@ public class GameServerServiceImpl implements GameServerService {
         GameServer gameServer;
         if (gameRepository.existsByName(gameName)) {
             Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            User user = userRepository.findByUsername(principal.getUsername()).orElseThrow(
+                    ()-> new UsernameNotFoundException("Username not found")
+            );
+            List<User> users = new ArrayList<>();
+            users.add(user);
             gameServer = GameServer.builder()
                     .name(serverName)
                     .status(GameServerStatus.ACTIVE)
                     .create_at(Constant.getCurrentDateTime())
                     .createBy(userRepository.getByUsername(principal.getUsername()))
+                    .users(users)
                     .game(gameRepository.findByName(gameName))
                     .build();
 

@@ -168,7 +168,7 @@ public class AuthServiceImpl implements AuthService {
                     .map(GameToken::getUser)
                     .map(user -> {
                         List<GameServer> gameServers =  gameServerRepository.findAllByUsers(user);
-                        return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ResponseObject(HttpStatus.ACCEPTED.toString(), "Get list game server  success!", null, gameServers));
+                        return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ResponseObject(HttpStatus.ACCEPTED.toString(), "Get list game server success!", null, gameServers));
                     })
                     .orElseThrow(() -> new RefreshTokenException("Game token is not in database!"));
 
