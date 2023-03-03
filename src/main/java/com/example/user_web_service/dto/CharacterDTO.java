@@ -3,16 +3,14 @@ package com.example.user_web_service.dto;
 import com.example.user_web_service.entity.*;
 import com.example.user_web_service.helper.DateTimeUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Embedded;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
+
+
 import java.util.Date;
 import java.util.List;
 

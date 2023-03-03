@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.HashMap;
+import java.util.Map;
 
 @Entity
 @NoArgsConstructor
@@ -25,6 +27,14 @@ public class CharacterAttribute {
     private Character character;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "attribute_group_id", nullable = false)
     private AttributeGroup attributeGroup;
+
+    public Map<String, Object> getAttributeGroupEffects() {
+        Map<String, Object> effectsMap = new HashMap<>();
+        effectsMap.put(attributeGroup.getName(), attributeGroup.getEffects());
+        return effectsMap;
+    }
+
 }

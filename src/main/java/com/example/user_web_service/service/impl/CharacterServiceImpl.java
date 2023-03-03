@@ -13,7 +13,6 @@ import com.example.user_web_service.security.jwt.RefreshTokenException;
 import com.example.user_web_service.security.userprincipal.Principal;
 import com.example.user_web_service.service.CharacterService;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.aspectj.asm.IModelFilter;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -42,6 +41,8 @@ public class CharacterServiceImpl implements CharacterService {
     private LevelRepository levelRepository;
     @Autowired
     private LevelProgressRepository levelProgressRepository;
+    @Autowired
+    private AttributeGroupRepository attributeGroupRepository;
 
     @Override
     public ResponseEntity<ResponseObject> creatCharacter(String name, String gameName, String serverName) {
@@ -137,6 +138,10 @@ public class CharacterServiceImpl implements CharacterService {
                     LevelProgress levelProgress1 = levelProgressRepository.findFirstByCharacterOrderByLevelUpDateDesc(character).orElseThrow(
                             () -> new NotFoundException("Level progress not found")
                     );
+                    List<AttributeGroup> attributeGroups = attributeGroupRepository.findByGame(game).orElseThrow(
+                            ()-> new NotFoundException("Attribute groups not found")
+                    );
+
                     character1.setCurrentLevel(levelProgress1);
                     return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ResponseObject(HttpStatus.ACCEPTED.toString(), "Get character successfully!", null, character1));
                 })

@@ -25,10 +25,15 @@ public class AttributeGroup {
     @JsonIgnore
     private String effect;
 
+    @ManyToOne
+    @JsonIgnore
+    @JoinColumn(name = "game_id", nullable = false, referencedColumnName = "id")
+    private Game game;
+
 
     @JsonAnyGetter
-    public Map<String, String> getEffects() {
-        Map<String, String> effects = new HashMap<>();
+    public Map<String, Object> getEffects() {
+        Map<String, Object> effects = new HashMap<>();
         if (effect != null) {
             // Parse string "HP:+20,MP:+10" to map {"HP": "+20", "MP": "+10"}
             String[] effectArray = effect.split(",");
@@ -41,10 +46,11 @@ public class AttributeGroup {
     }
 
     @JsonAnySetter
-    public void setEffects(String key, String value) {
+    public void setEffects(String key, Object value) {
         if (effect == null) {
             effect = "";
         }
-        effect += key + ":" + value + ",";
+        effect += key + ":" + value.toString() + ",";
     }
+   
 }

@@ -1,5 +1,6 @@
 package com.example.user_web_service.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -18,4 +19,9 @@ public class CharacterType {
 
     @Column(nullable = false)
     private String name;
+
+    @ManyToOne
+    @JsonIgnore
+    @JoinColumn(name = "game_id", nullable = false, referencedColumnName = "id")
+    private Game game;
 }
