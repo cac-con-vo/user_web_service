@@ -9,6 +9,9 @@ import com.example.user_web_service.form.LoginForm;
 import com.example.user_web_service.form.LogoutForm;
 import com.example.user_web_service.form.RefreshTokenForm;
 import com.example.user_web_service.payload.response.RefreshTokenResponse;
+import com.example.user_web_service.redis.RedisValueCache;
+import com.example.user_web_service.redis.locker.DistributedLocker;
+import com.example.user_web_service.redis.locker.LockExecutionResult;
 import com.example.user_web_service.repository.GameRepository;
 import com.example.user_web_service.repository.GameServerRepository;
 import com.example.user_web_service.repository.UserRepository;
@@ -67,6 +70,10 @@ public class AuthServiceImpl implements AuthService {
     private GameRepository gameRepository;
     @Autowired
     private GameServerRepository gameServerRepository ;
+    @Autowired
+    private RedisValueCache redisValueCache;
+    @Autowired
+    private DistributedLocker distributedLocker;
 
     public AuthServiceImpl(ModelMapper mapper) {
         this.mapper = mapper;
@@ -90,24 +97,34 @@ public class AuthServiceImpl implements AuthService {
             return responseEntity;
         }
 
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginForm.getUsername(), loginForm.getPassword())
-            );
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            Principal userPrinciple = (Principal) authentication.getPrincipal();
-            String accessToken = jwtProvider.createToken(userPrinciple);
-            String refreshToken = refreshTokenProvider.createRefreshToken(loginForm.getUsername()).getToken();
-            String gameToken = gameTokenProvider.createGameToken(loginForm.getUsername()).getToken();
-            return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ResponseObject(HttpStatus.ACCEPTED.toString(), "Login success!", null, new JwtResponse(accessToken, refreshToken, gameToken)));
-        } catch (AuthenticationException e) {
-            if (e instanceof DisabledException) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseObject(HttpStatus.UNAUTHORIZED.toString(), "Account has been locked. Please contact " + companyEmail + " for more information", null, null));
+        LockExecutionResult<ResponseEntity<ResponseObject>> lockResult = distributedLocker.lock("login-form", 30, 10, () -> {
+            try {
+                Authentication authentication = authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(loginForm.getUsername(), loginForm.getPassword())
+                );
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                Principal userPrinciple = (Principal) authentication.getPrincipal();
+                String accessToken = jwtProvider.createToken(userPrinciple);
+                String refreshToken = refreshTokenProvider.createRefreshToken(loginForm.getUsername()).getToken();
+                String gameToken = gameTokenProvider.createGameToken(loginForm.getUsername()).getToken();
+                return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ResponseObject(HttpStatus.ACCEPTED.toString(), "Login success!", null, new JwtResponse(accessToken, refreshToken, gameToken)));
+            } catch (AuthenticationException e) {
+                if (e instanceof DisabledException) {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseObject(HttpStatus.UNAUTHORIZED.toString(), "Account has been locked. Please contact " + companyEmail + " for more information", null, null));
+                }
+                if(e instanceof AccountExpiredException){
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseObject(HttpStatus.UNAUTHORIZED.toString(), "Account has expired. Please contact " + companyEmail + " for more information", null, null));
+                }
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseObject(HttpStatus.UNAUTHORIZED.toString(), "Invalid username or password", null, null));
             }
-            if(e instanceof AccountExpiredException){
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseObject(HttpStatus.UNAUTHORIZED.toString(), "The account has expired. Please contact " + companyEmail + " for more information", null, null));
-            }
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseObject(HttpStatus.UNAUTHORIZED.toString(), "Invalid email or password. Please try again.", null, null));
+        });
+
+        if (!lockResult.isLockAcquired()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ResponseObject(HttpStatus.CONFLICT.toString(), "Failed to acquire lock for login form", null, null));
+        } else if (lockResult.hasException()) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseObject(HttpStatus.INTERNAL_SERVER_ERROR.toString(), "An error occurred while trying to acquire lock for login form", null, null));
+        } else {
+            return lockResult.getResultIfLockAcquired();
         }
     }
 

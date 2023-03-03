@@ -71,7 +71,7 @@ public class SecurityConfig {
 
 		//Accept not need authenticate
 		http.authorizeRequests().antMatchers("/swagger-ui/**", "/v3/api-docs/**","/api/v1/auth/login", "/api/v1/auth/accessToken",
-				"/error", "/v2/api-docs/**", "/api/v1/notification/**")
+				"/error", "/v2/api-docs/**", "/api/v1/notification/**", "/users/signUpa")
 				.permitAll();
 
 		// apis that need Admin Role to call
