@@ -1,25 +1,26 @@
-package com.example.user_web_service.entity;
+package com.example.user_web_service.dto;
 
+import com.example.user_web_service.entity.*;
 import com.example.user_web_service.helper.DateTimeUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import javax.persistence.*;
+import javax.persistence.Embedded;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import java.util.Date;
 import java.util.List;
 
-
-@Entity
-@NoArgsConstructor
 @AllArgsConstructor
-@Setter
+@NoArgsConstructor
 @Getter
-@Builder
-@Table(name = "character")
-public class Character {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+@Setter
+public class CharacterDTO {
     private Long id;
 
     private String name;
@@ -30,29 +31,13 @@ public class Character {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateTimeUtils.DATETIME_FORMAT)
     private Date update_at;
 
-    @Embedded
     private CharacterPosition position;
 
-    @ManyToOne
-    @JsonIgnore
-    @JoinColumn(name = "game_server_id", nullable = false)
-    private GameServer gameServer;
-
-    @ManyToOne
-    @JsonIgnore
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
-
-    @ManyToOne
-    @JoinColumn(name = "character_type_id", nullable = false)
     private CharacterType characterType;
 
-    @OneToMany(mappedBy = "character")
     private List<CharacterAttribute> characterAttributes;
 
-    @OneToMany(mappedBy = "character")
-    private List<LevelProgress> levels;
+    private LevelProgress currentLevel;
 
-    @OneToMany(mappedBy = "character")
     private List<Asset> assets;
 }

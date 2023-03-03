@@ -16,5 +16,5 @@ public interface AuthService {
     ResponseEntity<ResponseObject> validateAccessToken();
     ResponseEntity<ResponseObject> refreshAccessToken(HttpServletRequest request, RefreshTokenForm refreshTokenForm);
     ResponseEntity<ResponseObject> logout(HttpServletRequest request, LogoutForm logoutForm);
-    ResponseEntity<ResponseObject> loginGame(GameTokenForm gameTokenForm);
+    ResponseEntity<ResponseObject> loginGame(GameTokenForm gameTokenForm, String gameName);
 }

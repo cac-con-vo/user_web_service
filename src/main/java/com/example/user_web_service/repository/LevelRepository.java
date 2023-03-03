@@ -1,12 +1,11 @@
 package com.example.user_web_service.repository;
 
-
 import com.example.user_web_service.entity.Game;
+import com.example.user_web_service.entity.Level;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface GameRepository extends JpaRepository<Game, Long> {
-    boolean existsByName(String name);
-    Optional<Game> findByName(String name);
+public interface LevelRepository extends JpaRepository<Level, Long> {
+    Optional<Level> findByNameAndGame(String name, Game game);
 }

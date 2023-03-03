@@ -7,6 +7,7 @@ import com.example.user_web_service.form.LogoutForm;
 import com.example.user_web_service.form.RefreshTokenForm;
 import com.example.user_web_service.service.impl.AuthServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -62,10 +63,13 @@ public class AuthController {
 
     @PostMapping("/auth/loginGame")
     @Operation(summary = "For login in game")
-    public ResponseEntity<ResponseObject> loginGame(@Valid @RequestBody GameTokenForm gameTokenForm) {
-        if(gameTokenForm.getGameToken() == null || gameTokenForm.getGameToken().isEmpty() || gameTokenForm.getGameToken().isBlank()){
+    public ResponseEntity<ResponseObject> loginGame(@Valid @RequestBody GameTokenForm gameTokenForm,
+                                                    @Parameter(description = "Input name of game", example = "Dead of souls") @RequestParam(name = "gameName") String gameName
+    ) {
+        if(gameTokenForm.getGameToken() == null || gameTokenForm.getGameToken().isEmpty() || gameTokenForm.getGameToken().isBlank() ||
+                gameName == null || gameName.isEmpty() || gameName.isBlank()){
             return new ResponseEntity<ResponseObject>(new ResponseObject(HttpStatus.BAD_REQUEST.toString(), "Please input refresh token", null, null), HttpStatus.BAD_REQUEST);
         }
-        return authService.loginGame(gameTokenForm);
+        return authService.loginGame(gameTokenForm, gameName);
     }
 }

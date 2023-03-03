@@ -28,7 +28,7 @@ public class LevelProgress {
     private Long expPoint;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateTimeUtils.DATETIME_FORMAT)
-    private Date level_up_date;
+    private Date levelUpDate;
 
     @ManyToOne
     @JsonIgnore

@@ -2,15 +2,14 @@ package com.example.user_web_service.service.impl;
 
 import com.example.user_web_service.dto.PrincipalDTO;
 import com.example.user_web_service.dto.ResponseObject;
-import com.example.user_web_service.entity.BlackAccessToken;
-import com.example.user_web_service.entity.GameServer;
-import com.example.user_web_service.entity.GameToken;
-import com.example.user_web_service.entity.RefreshToken;
+import com.example.user_web_service.entity.*;
+import com.example.user_web_service.exception.NotFoundException;
 import com.example.user_web_service.form.GameTokenForm;
 import com.example.user_web_service.form.LoginForm;
 import com.example.user_web_service.form.LogoutForm;
 import com.example.user_web_service.form.RefreshTokenForm;
 import com.example.user_web_service.payload.response.RefreshTokenResponse;
+import com.example.user_web_service.repository.GameRepository;
 import com.example.user_web_service.repository.GameServerRepository;
 import com.example.user_web_service.repository.UserRepository;
 import com.example.user_web_service.security.jwt.*;
@@ -65,7 +64,7 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private BlackAccessTokenServiceImp blackAccessTokenServiceImp;
     @Autowired
-    private UserService userService;
+    private GameRepository gameRepository;
     @Autowired
     private GameServerRepository gameServerRepository ;
 
@@ -162,12 +161,15 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public ResponseEntity<ResponseObject> loginGame(GameTokenForm gameTokenForm) {
+    public ResponseEntity<ResponseObject> loginGame(GameTokenForm gameTokenForm, String gameName) {
             return  gameTokenProvider.findByToken(DigestUtils.sha3_256Hex(gameTokenForm.getGameToken()))
                     .map(gameTokenProvider::verifyExpiration)
                     .map(GameToken::getUser)
                     .map(user -> {
-                        List<GameServer> gameServers =  gameServerRepository.findAllByUsers(user);
+                        Game game = gameRepository.findByName(gameName).orElseThrow(
+                                ()-> new NotFoundException("Name of game not found")
+                        );
+                        List<GameServer> gameServers =  gameServerRepository.findAllByUsersAndGame(user, game);
                         return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ResponseObject(HttpStatus.ACCEPTED.toString(), "Get list game server success!", null, gameServers));
                     })
                     .orElseThrow(() -> new RefreshTokenException("Game token is not in database!"));

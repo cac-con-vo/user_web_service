@@ -27,6 +27,13 @@ public class GameServerController {
             @Parameter(description = "Input name of game server (EX: server1, server2,..)") @RequestParam(name = "serverName") String serverName,
             @Parameter(description = "Input name of game (EX: Dead of souls)") @RequestParam(name = "gameName") String gameName
             ) {
+        if(serverName == null || serverName.isEmpty() || serverName.isBlank() ||
+                gameName == null || gameName.isEmpty() || gameName.isBlank()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new ResponseObject(HttpStatus.BAD_REQUEST.toString(),
+                            "Please input data.", null, null)
+            );
+        }
         return gameServerService.createGameServer(serverName.trim(), gameName.trim());
     }
     @Operation(summary = "For get all game server")
@@ -35,14 +42,28 @@ public class GameServerController {
     public ResponseEntity<ResponseObject> getAllGameServer(
             @Parameter(description = "Input name of game (EX: Dead of souls)") @RequestParam(name = "gameName") String gameName
     ) {
+        if(gameName == null || gameName.isEmpty() || gameName.isBlank()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new ResponseObject(HttpStatus.BAD_REQUEST.toString(),
+                            "Please input data.", null, null)
+            );
+        }
         return gameServerService.getAllGameServer(gameName.trim());
     }
 
     @Operation(summary = "For get all game server of an user")
     @GetMapping("/getAllGameServerOfUser")
     @SecurityRequirements
-    public ResponseEntity<ResponseObject> getAllGameServerOfUser() {
-        return gameServerService.getAllGameServerOfUser();
+    public ResponseEntity<ResponseObject> getAllGameServerOfUser(
+            @Parameter(description = "Input name of game (EX: Dead of souls)") @RequestParam(name = "gameName") String gameName
+    ) {
+        if(gameName == null || gameName.isEmpty() || gameName.isBlank()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new ResponseObject(HttpStatus.BAD_REQUEST.toString(),
+                            "Please input data.", null, null)
+            );
+        }
+        return gameServerService.getAllGameServerOfUser(gameName);
     }
 
     @Operation(summary = "For add an user to server")
@@ -50,16 +71,18 @@ public class GameServerController {
     @SecurityRequirements
     public ResponseEntity<ResponseObject> addUserToGameServer(
             @Parameter(description = "Input username of user") @RequestParam(name = "username") String username,
+            @Parameter(description = "Input name of game (EX: Dead of souls)") @RequestParam(name = "gameName") String gameName,
             @Parameter(description = "Input name of server game (EX: server1, server2)") @RequestParam(name = "serverName") String serverName
     ) {
-        if(username.isEmpty() || username.isBlank() || username == null || serverName.isEmpty() || serverName.isBlank() || serverName == null ){
+        if(username.isEmpty() || username.isBlank() || username == null || serverName.isEmpty() || serverName.isBlank() || serverName == null ||
+                gameName.isEmpty() || gameName.isBlank() || gameName == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                     new ResponseObject(HttpStatus.BAD_REQUEST.toString(),
                             "Please input username or server name.",
                             null, null)
             );
         }
-        return gameServerService.addUserToGameServer(username, serverName);
+        return gameServerService.addUserToGameServer(username, gameName,serverName);
     }
 
 }

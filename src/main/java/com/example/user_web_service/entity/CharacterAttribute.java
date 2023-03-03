@@ -17,7 +17,7 @@ public class CharacterAttribute {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long value;
+    private float value;
 
     @ManyToOne
     @JsonIgnore

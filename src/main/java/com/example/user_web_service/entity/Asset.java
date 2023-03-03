@@ -24,7 +24,8 @@ public class Asset {
     @JsonIgnore
     @JoinColumn(name = "asset_type_id", nullable = false, referencedColumnName = "id")
     private AssetType assetType;
-
+    private String image;
+    private int cost;
     @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "character_id", nullable = false, referencedColumnName = "id")

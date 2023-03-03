@@ -54,13 +54,16 @@ public class GameServerServiceImpl implements GameServerService {
             );
             List<User> users = new ArrayList<>();
             users.add(user);
+            Game game = gameRepository.findByName(gameName).orElseThrow(
+                    ()-> new NotFoundException("Game not found")
+            );
             gameServer = GameServer.builder()
                     .name(serverName)
                     .status(GameServerStatus.ACTIVE)
                     .create_at(Constant.getCurrentDateTime())
                     .createBy(userRepository.getByUsername(principal.getUsername()))
                     .users(users)
-                    .game(gameRepository.findByName(gameName))
+                    .game(game)
                     .build();
 
             gameServerRepository.save(gameServer);
@@ -85,7 +88,9 @@ public class GameServerServiceImpl implements GameServerService {
     public ResponseEntity<ResponseObject> getAllGameServer(String gameName) {
         List<GameServer> list;
         if (gameRepository.existsByName(gameName)) {
-            list = gameServerRepository.findAllByGame(gameRepository.findByName(gameName));
+            list = gameServerRepository.findAllByGame(gameRepository.findByName(gameName).orElseThrow(
+                    ()-> new NotFoundException("Game not found")
+            ));
         }else{
             throw new NotFoundException("Game " + gameName +" not found.");
         }
@@ -98,23 +103,29 @@ public class GameServerServiceImpl implements GameServerService {
     }
 
     @Override
-    public ResponseEntity<ResponseObject> getAllGameServerOfUser() {
+    public ResponseEntity<ResponseObject> getAllGameServerOfUser(String gameName) {
+        Game game = gameRepository.findByName(gameName).orElseThrow(
+                ()-> new NotFoundException("Game not found")
+        );
         Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseObject(HttpStatus.OK.toString(),
                         "Get all server of" + principal.getUsername() +"successfully!",
                         null,
-                        gameServerRepository.findAllByUsers(userRepository.getByUsername(principal.getUsername()))
+                        gameServerRepository.findAllByUsersAndGame(userRepository.getByUsername(principal.getUsername()),game)
                 )
         );
     }
 
     @Override
-    public ResponseEntity<ResponseObject> addUserToGameServer(String username, String serverName) {
+    public ResponseEntity<ResponseObject> addUserToGameServer(String username, String gameName ,String serverName) {
         Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = userRepository.findByUsername(username).orElseThrow(()->
                 new UsernameNotFoundException("Username not found."));
-        GameServer gameServer = gameServerRepository.findByName(serverName).orElseThrow(
+        Game game = gameRepository.findByName(gameName).orElseThrow(
+                ()-> new NotFoundException("Name of game not found")
+        );
+        GameServer gameServer = gameServerRepository.findByNameAndGame(serverName, game).orElseThrow(
                 ()-> new NotFoundException("Game server not found.")
         );
         if(gameServer.getCreateBy().getUsername().equalsIgnoreCase(principal.getUsername())){

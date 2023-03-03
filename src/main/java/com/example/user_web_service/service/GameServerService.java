@@ -8,8 +8,8 @@ public interface GameServerService {
     ResponseEntity<ResponseObject> createGameServer(String serverName, String gameName);
     ResponseEntity<ResponseObject> getAllGameServer(String gameName);
 
-    ResponseEntity<ResponseObject> getAllGameServerOfUser();
+    ResponseEntity<ResponseObject> getAllGameServerOfUser(String gameName);
 
-    ResponseEntity<ResponseObject> addUserToGameServer(String username, String serverName);
+    ResponseEntity<ResponseObject> addUserToGameServer(String username, String gameName ,String serverName);
 
 }
