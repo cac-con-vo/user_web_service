@@ -1,5 +1,7 @@
 package com.example.user_web_service.helper;
 
+import com.example.user_web_service.config.FirebaseConfig;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,8 +15,8 @@ import java.nio.file.StandardCopyOption;
 @Service
 public class StorageService {
 
-	Environment environment;
-
+	@Autowired
+	private FirebaseConfig firebaseConfig;
 	public String uploadImage(MultipartFile file, String proName) {
 		try {
 			Path UPLOAD_PATH = Paths.get("./public/").normalize();

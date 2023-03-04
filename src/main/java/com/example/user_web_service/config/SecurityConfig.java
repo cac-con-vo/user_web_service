@@ -10,8 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import org.springframework.security.access.expression.SecurityExpressionHandler;
-import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -71,7 +70,7 @@ public class SecurityConfig {
 
 		//Accept not need authenticate
 		http.authorizeRequests().antMatchers("/swagger-ui/**", "/v3/api-docs/**","/api/v1/auth/login", "/api/v1/auth/accessToken",
-				"/error", "/v2/api-docs/**", "/api/v1/notification/**", "/users/signUpa")
+				"/error", "/v2/api-docs/**", "/api/v1/notification/**", "/users/signUp")
 				.permitAll();
 
 		// apis that need Admin Role to call
@@ -81,7 +80,7 @@ public class SecurityConfig {
 		// api that need User or Admin role to call
 		http.authorizeRequests()
 				.antMatchers("/users/change-password", "/users/profile", "/users/update",
-				"/users/resetPassword", "/api/v1/gameServer/getAllGameServerOfUser")
+				"/users/resetPassword", "/api/v1/gameServer/getAllGameServerOfUser", "/images/**")
 				.hasAnyAuthority(Constant.USER_ROLE, Constant.ADMIN_ROLE);
 
 		//api that need User role to call
