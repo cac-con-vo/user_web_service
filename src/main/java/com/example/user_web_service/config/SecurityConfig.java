@@ -84,7 +84,8 @@ public class SecurityConfig {
 		//api that need User role to call
 		http.authorizeRequests().antMatchers(
 			"/api/v1/gameServer/createGameServer", "/api/v1/character/createCharacter","/api/v1/auth/loginGame",
-				"/api/v1/gameServer/addUserToGame", "/api/v1/character/getCharacter"
+				"/api/v1/gameServer/addUserToGame", "/api/v1/character/getCharacter", "/api/v1/character/getAttributeEffect",
+				"/api/v1/character/getAllLevelOfGame"
 		).hasAnyAuthority(Constant.USER_ROLE);
 
 		http.authorizeRequests().anyRequest().authenticated();

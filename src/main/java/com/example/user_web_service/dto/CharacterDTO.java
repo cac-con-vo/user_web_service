@@ -1,6 +1,5 @@
 package com.example.user_web_service.dto;
 
-import com.example.user_web_service.entity.*;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -10,7 +9,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
-import java.util.Map;
 
 
 @AllArgsConstructor
