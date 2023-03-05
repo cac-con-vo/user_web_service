@@ -23,12 +23,26 @@ public class Character {
     private Long id;
 
     private String name;
+    //basic data
+    private float basicMaxHP;
+    private float basicCurrentHP;
+    private float basicMaxMP;
+    private float basicCurrentMP;
+    private float basicMaxStamina;
+    private float basicCurrentStamina;
+    private float basicSpeed;
+    private float basicRecuperateHP;
+    private float basicRecuperateMP;
+    private float basicRecuperateStamina;
 
+    private int free_point;
     private CharacterStatus status;
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateTimeUtils.DATETIME_FORMAT)
     private Date create_at;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateTimeUtils.DATETIME_FORMAT)
     private Date update_at;
+
 
     @Embedded
     private CharacterPosition position;

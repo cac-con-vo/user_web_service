@@ -1,36 +1,20 @@
-package com.example.user_web_service.entity;
-
+package com.example.user_web_service.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
-import javax.persistence.*;
 import java.util.HashMap;
 import java.util.Map;
-
-@Entity
-@NoArgsConstructor
-@AllArgsConstructor
 @Setter
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
-@Table(name = "attribute_group")
-public class AttributeGroup {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    private String name;
+public class AttributeEffectDTO {
+    private int id;
     @JsonIgnore
     private String effect;
-
-    @ManyToOne
-    @JsonIgnore
-    @JoinColumn(name = "game_id", nullable = false, referencedColumnName = "id")
-    private Game game;
-
-
     @JsonProperty("effects")
     public Map<String, Object> getEffectMap() {
         Map<String, Object> effects = new HashMap<>();
@@ -52,5 +36,4 @@ public class AttributeGroup {
         }
         this.effect = builder.toString();
     }
-   
 }

@@ -60,16 +60,13 @@ public class AuthController {
         }
         return authService.logout(request, logoutForm);
     }
-
     @PostMapping("/auth/loginGame")
-    @Operation(summary = "For login in game")
-    public ResponseEntity<ResponseObject> loginGame(@Valid @RequestBody GameTokenForm gameTokenForm,
-                                                    @Parameter(description = "Input name of game", example = "Dead of souls") @RequestParam(name = "gameName") String gameName
-    ) {
-        if(gameTokenForm.getGameToken() == null || gameTokenForm.getGameToken().isEmpty() || gameTokenForm.getGameToken().isBlank() ||
-                gameName == null || gameName.isEmpty() || gameName.isBlank()){
+    @Operation(summary = "For login game")
+    public ResponseEntity<ResponseObject> loginGame(HttpServletRequest request, String token) {
+        if(token == null || token.isEmpty() || token.isBlank()){
             return new ResponseEntity<ResponseObject>(new ResponseObject(HttpStatus.BAD_REQUEST.toString(), "Please input refresh token", null, null), HttpStatus.BAD_REQUEST);
         }
-        return authService.loginGame(gameTokenForm, gameName);
+        return authService.validateAccessTokenForLoginGame(request, token);
     }
+
 }

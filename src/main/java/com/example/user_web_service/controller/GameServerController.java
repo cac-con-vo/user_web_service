@@ -1,6 +1,7 @@
 package com.example.user_web_service.controller;
 
 import com.example.user_web_service.dto.ResponseObject;
+import com.example.user_web_service.form.GameTokenForm;
 import com.example.user_web_service.service.impl.GameServerServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -9,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.List;
 
 
 @RestController
@@ -24,17 +28,20 @@ public class GameServerController {
     @PostMapping("/createGameServer")
     @SecurityRequirements
     public ResponseEntity<ResponseObject> createGameServer(
+            @Valid @RequestBody GameTokenForm gameTokenForm,
             @Parameter(description = "Input name of game server (EX: server1, server2,..)") @RequestParam(name = "serverName") String serverName,
-            @Parameter(description = "Input name of game (EX: Dead of souls)") @RequestParam(name = "gameName") String gameName
+            @Parameter(description = "Input name of game (EX: Dead of souls)") @RequestParam(name = "gameName") String gameName,
+            @Parameter(description = "Input name of game") @RequestParam(name = "usernames") List<String> usernames
             ) {
-        if(serverName == null || serverName.isEmpty() || serverName.isBlank() ||
+        if(gameTokenForm.getGameToken() == null || gameTokenForm.getGameToken().isEmpty() || gameTokenForm.getGameToken().isBlank()||
+        serverName == null || serverName.isEmpty() || serverName.isBlank() ||
                 gameName == null || gameName.isEmpty() || gameName.isBlank()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                     new ResponseObject(HttpStatus.BAD_REQUEST.toString(),
                             "Please input data.", null, null)
             );
         }
-        return gameServerService.createGameServer(serverName.trim(), gameName.trim());
+        return gameServerService.createGameServer(gameTokenForm ,serverName.trim(), gameName.trim(), usernames);
     }
     @Operation(summary = "For get all game server")
     @GetMapping("/getAllGameServer")
@@ -52,37 +59,19 @@ public class GameServerController {
     }
 
     @Operation(summary = "For get all game server of an user")
-    @GetMapping("/getAllGameServerOfUser")
+    @PostMapping("/getAllGameServerOfUser")
     @SecurityRequirements
     public ResponseEntity<ResponseObject> getAllGameServerOfUser(
+            @Valid @RequestBody GameTokenForm gameTokenForm,
             @Parameter(description = "Input name of game (EX: Dead of souls)") @RequestParam(name = "gameName") String gameName
     ) {
-        if(gameName == null || gameName.isEmpty() || gameName.isBlank()){
+        if(gameTokenForm.getGameToken() == null || gameTokenForm.getGameToken().isEmpty() || gameTokenForm.getGameToken().isBlank()||
+                gameName == null || gameName.isEmpty() || gameName.isBlank()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                     new ResponseObject(HttpStatus.BAD_REQUEST.toString(),
                             "Please input data.", null, null)
             );
         }
-        return gameServerService.getAllGameServerOfUser(gameName);
+        return gameServerService.getAllGameServerOfUser(gameTokenForm,gameName);
     }
-
-    @Operation(summary = "For add an user to server")
-    @PostMapping("/addUserToGame")
-    @SecurityRequirements
-    public ResponseEntity<ResponseObject> addUserToGameServer(
-            @Parameter(description = "Input username of user") @RequestParam(name = "username") String username,
-            @Parameter(description = "Input name of game (EX: Dead of souls)") @RequestParam(name = "gameName") String gameName,
-            @Parameter(description = "Input name of server game (EX: server1, server2)") @RequestParam(name = "serverName") String serverName
-    ) {
-        if(username.isEmpty() || username.isBlank() || username == null || serverName.isEmpty() || serverName.isBlank() || serverName == null ||
-                gameName.isEmpty() || gameName.isBlank() || gameName == null){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                    new ResponseObject(HttpStatus.BAD_REQUEST.toString(),
-                            "Please input username or server name.",
-                            null, null)
-            );
-        }
-        return gameServerService.addUserToGameServer(username, gameName,serverName);
-    }
-
 }

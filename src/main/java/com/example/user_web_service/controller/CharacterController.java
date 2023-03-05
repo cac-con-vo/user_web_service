@@ -24,12 +24,14 @@ public class CharacterController {
     @PostMapping("/createCharacter")
     @SecurityRequirements
     public ResponseEntity<ResponseObject> createCharacter(
+            GameTokenForm gameTokenForm,
             @Parameter(description = "Input name of character ",example = "concamap") @RequestParam(name = "characterName") String characterName,
             @Parameter(description = "Input name of game", example = "Dead of souls") @RequestParam(name = "gameName") String gameName,
             @Parameter(description = "Input name of server", example = "server1") @RequestParam(name = "serverName") String serverName
 
     ) {
-        if(characterName == null || characterName.isEmpty() || characterName.isBlank() ||
+        if(gameTokenForm.getGameToken() == null || gameTokenForm.getGameToken().isBlank() || gameTokenForm.getGameToken().isEmpty() ||
+                characterName == null || characterName.isEmpty() || characterName.isBlank() ||
                 serverName == null || serverName.isEmpty() || serverName.isBlank() ||
                 gameName == null || gameName.isEmpty() || gameName.isBlank()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
@@ -37,7 +39,7 @@ public class CharacterController {
                             "Please input data.", null, null)
             );
         }
-        return characterService.creatCharacter(characterName.trim(), gameName.trim(), serverName.trim());
+        return characterService.creatCharacter(gameTokenForm,characterName.trim(), gameName.trim(), serverName.trim());
     }
 
     @Operation(summary = "For get a character for user")
@@ -57,5 +59,43 @@ public class CharacterController {
             );
         }
         return characterService.getCharacter(gameTokenForm, gameName.trim() ,serverName.trim());
+    }
+
+    @Operation(summary = "For get effects of attribute for user")
+    @GetMapping("/getAttributeEffect")
+    @SecurityRequirements
+    public ResponseEntity<ResponseObject> getAttributeEffect(
+            GameTokenForm gameTokenForm,
+            @Parameter(description = "Input name of game", example = "Dead of souls") @RequestParam(name = "gameName") String gameName
+            ) {
+        if(gameTokenForm.getGameToken() == null || gameTokenForm.getGameToken().isBlank() ||
+                gameTokenForm.getGameToken().isEmpty()||
+                gameName == null || gameName.isEmpty() || gameName.isBlank()
+               ){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new ResponseObject(HttpStatus.BAD_REQUEST.toString(),
+                            "Please input data.", null, null)
+            );
+        }
+        return characterService.getAttributeEffect(gameTokenForm, gameName);
+    }
+
+    @Operation(summary = "For get levels of game for user")
+    @GetMapping("/getAllLevelOfGame")
+    @SecurityRequirements
+    public ResponseEntity<ResponseObject> getAllLevelOfGame(
+            GameTokenForm gameTokenForm,
+            @Parameter(description = "Input name of game", example = "Dead of souls") @RequestParam(name = "gameName") String gameName
+    ) {
+        if(gameTokenForm.getGameToken() == null || gameTokenForm.getGameToken().isBlank() ||
+                gameTokenForm.getGameToken().isEmpty()||
+                gameName == null || gameName.isEmpty() || gameName.isBlank()
+        ){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new ResponseObject(HttpStatus.BAD_REQUEST.toString(),
+                            "Please input data.", null, null)
+            );
+        }
+        return characterService.getAllLevelOfGame(gameTokenForm, gameName.trim());
     }
 }

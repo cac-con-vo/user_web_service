@@ -3,22 +3,16 @@ package com.example.user_web_service.service.impl;
 import com.example.user_web_service.dto.PrincipalDTO;
 import com.example.user_web_service.dto.ResponseObject;
 import com.example.user_web_service.entity.*;
-import com.example.user_web_service.exception.NotFoundException;
-import com.example.user_web_service.form.GameTokenForm;
 import com.example.user_web_service.form.LoginForm;
 import com.example.user_web_service.form.LogoutForm;
 import com.example.user_web_service.form.RefreshTokenForm;
+import com.example.user_web_service.payload.response.GameTokenResponse;
 import com.example.user_web_service.payload.response.RefreshTokenResponse;
-import com.example.user_web_service.redis.RedisValueCache;
 import com.example.user_web_service.redis.locker.DistributedLocker;
 import com.example.user_web_service.redis.locker.LockExecutionResult;
-import com.example.user_web_service.repository.GameRepository;
-import com.example.user_web_service.repository.GameServerRepository;
-import com.example.user_web_service.repository.UserRepository;
 import com.example.user_web_service.security.jwt.*;
 import com.example.user_web_service.security.userprincipal.Principal;
 import com.example.user_web_service.service.AuthService;
-import com.example.user_web_service.service.UserService;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.modelmapper.ModelMapper;
@@ -35,12 +29,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.Instant;
-import java.util.List;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -54,11 +46,6 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private JwtProvider jwtProvider;
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
     private RefreshTokenProvider refreshTokenProvider;
     @Autowired
     private GameTokenProvider gameTokenProvider;
@@ -66,14 +53,12 @@ public class AuthServiceImpl implements AuthService {
     private AuthenticationManager authenticationManager;
     @Autowired
     private BlackAccessTokenServiceImp blackAccessTokenServiceImp;
-    @Autowired
-    private GameRepository gameRepository;
-    @Autowired
-    private GameServerRepository gameServerRepository ;
-    @Autowired
-    private RedisValueCache redisValueCache;
+
+
     @Autowired
     private DistributedLocker distributedLocker;
+
+
 
     public AuthServiceImpl(ModelMapper mapper) {
         this.mapper = mapper;
@@ -106,8 +91,7 @@ public class AuthServiceImpl implements AuthService {
                 Principal userPrinciple = (Principal) authentication.getPrincipal();
                 String accessToken = jwtProvider.createToken(userPrinciple);
                 String refreshToken = refreshTokenProvider.createRefreshToken(loginForm.getUsername()).getToken();
-                String gameToken = gameTokenProvider.createGameToken(loginForm.getUsername()).getToken();
-                return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ResponseObject(HttpStatus.ACCEPTED.toString(), "Login success!", null, new JwtResponse(accessToken, refreshToken, gameToken)));
+                return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ResponseObject(HttpStatus.ACCEPTED.toString(), "Login success!", null, new JwtResponse(accessToken, refreshToken)));
             } catch (AuthenticationException e) {
                 if (e instanceof DisabledException) {
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseObject(HttpStatus.UNAUTHORIZED.toString(), "Account has been locked. Please contact " + companyEmail + " for more information", null, null));
@@ -133,6 +117,34 @@ public class AuthServiceImpl implements AuthService {
         Principal userPrinciple = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         PrincipalDTO principalDTO = mapper.map(userPrinciple, PrincipalDTO.class);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ResponseObject(HttpStatus.ACCEPTED.toString(), "Validate access token success!", null, principalDTO));
+    }
+
+    @Override
+    public ResponseEntity<ResponseObject> validateAccessTokenForLoginGame(HttpServletRequest request, String token) {
+
+        String accessToken = jwtProvider.getJwt(request);
+        boolean isValidAccessToken = jwtProvider.validateToken(accessToken);
+
+        if (isValidAccessToken && accessToken.trim().equals(token)) {
+            // Access token is valid
+            Principal userPrincipal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            String gameToken = gameTokenProvider.createGameToken(userPrincipal.getUsername()).getToken();
+            GameTokenResponse gameTokenResponse = new GameTokenResponse(gameToken);
+
+            return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject(
+                    HttpStatus.OK.toString(),
+                    "Get game token successfully.",
+                    null,
+                    gameTokenResponse
+            ));
+        } else {
+            // Access token is invalid
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseObject(
+                    HttpStatus.BAD_REQUEST.toString(),
+                    "Access token is not valid",
+                    null, null
+                    ));
+        }
     }
 
     @Override
@@ -177,21 +189,7 @@ public class AuthServiceImpl implements AuthService {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ResponseObject(HttpStatus.ACCEPTED.toString(), "Logout success!", null, new RefreshTokenResponse(null, null)));
     }
 
-    @Override
-    public ResponseEntity<ResponseObject> loginGame(GameTokenForm gameTokenForm, String gameName) {
-            return  gameTokenProvider.findByToken(DigestUtils.sha3_256Hex(gameTokenForm.getGameToken()))
-                    .map(gameTokenProvider::verifyExpiration)
-                    .map(GameToken::getUser)
-                    .map(user -> {
-                        Game game = gameRepository.findByName(gameName).orElseThrow(
-                                ()-> new NotFoundException("Name of game not found")
-                        );
-                        List<GameServer> gameServers =  gameServerRepository.findAllByUsersAndGame(user, game);
-                        return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ResponseObject(HttpStatus.ACCEPTED.toString(), "Get list game server success!", null, gameServers));
-                    })
-                    .orElseThrow(() -> new RefreshTokenException("Game token is not in database!"));
 
-    }
 
 
     private void clearRefreshTokenCache(String refreshToken) {

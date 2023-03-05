@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface GameServerRepository extends JpaRepository<GameServer, Long> {
-    boolean existsByName(String name);
+    boolean existsByNameAndGame(String name, Game game);
 
     Optional<GameServer> findByNameAndGame(String name, Game game);
 

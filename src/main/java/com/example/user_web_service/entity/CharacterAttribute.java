@@ -19,7 +19,7 @@ public class CharacterAttribute {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private float value;
+    private Long value;
 
     @ManyToOne
     @JsonIgnore
@@ -27,14 +27,7 @@ public class CharacterAttribute {
     private Character character;
 
     @ManyToOne
-    @JsonIgnore
     @JoinColumn(name = "attribute_group_id", nullable = false)
     private AttributeGroup attributeGroup;
-
-    public Map<String, Object> getAttributeGroupEffects() {
-        Map<String, Object> effectsMap = new HashMap<>();
-        effectsMap.put(attributeGroup.getName(), attributeGroup.getEffects());
-        return effectsMap;
-    }
 
 }

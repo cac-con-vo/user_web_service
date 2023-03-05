@@ -65,17 +65,7 @@ public class GameTokenProvider {
         gameTokenRepository.deleteAllByUser_Id(userId);
         return gameToken;
     }
-//    public boolean authenticateGameToken(String token) {
-//        GameToken gameToken = cacheManager.getCache("gameToken").get(DigestUtils.sha3_256Hex(token), GameToken.class);
-//        if (gameToken != null && gameToken.getExpiryDate().isAfter(Instant.now())) {
-//            String encryptedToken = DigestUtils.sha3_256Hex(token);
-//            GameToken gameTokenEncrypt = gameTokenRepository.findByToken(encryptedToken).orElseThrow(()->new ResourceNotFoundException("Game token ", null, token));
-//            if (gameTokenEncrypt != null && gameTokenEncrypt.getExpiryDate().isAfter(Instant.now())) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
+
 
     @Transactional
     public void deleteByToken(String token) {

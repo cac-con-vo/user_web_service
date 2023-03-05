@@ -49,8 +49,6 @@ public class PrincipalDTO {
         return avatar;
     }
 
-
-
     public String getStatus() {
         return status.toString() ;
     }
