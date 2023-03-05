@@ -21,15 +21,15 @@ public class CharacterDTO {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "0.0")
     private float basicMaxHP;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "0.0")
-    private float basicCurrentHP;
+    private float currentHP;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "0.0")
     private float basicMaxMP;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "0.0")
-    private float basicCurrentMP;
+    private float currentMP;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "0.0")
     private float basicMaxStamina;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "0.0")
-    private float basicCurrentStamina;
+    private float currentStamina;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "0.0")
     private float basicSpeed;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "0.0")

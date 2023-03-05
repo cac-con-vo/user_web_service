@@ -81,11 +81,11 @@ public class CharacterServiceImpl implements CharacterService {
                             character.setStatus(CharacterStatus.ACTIVE);
                             character.setName(characterName);
                             character.setBasicMaxHP(200.0f);
-                            character.setBasicCurrentHP(200.0f);
+                            character.setCurrentHP(1.0f);
                             character.setBasicMaxMP(100.0f);
-                            character.setBasicCurrentMP(100.0f);
+                            character.setCurrentMP(1.0f);
                             character.setBasicMaxStamina(100.0f);
-                            character.setBasicCurrentStamina(100.0f);
+                            character.setCurrentStamina(1.0f);
                             character.setBasicSpeed(10.0f);
                             character.setBasicRecuperateHP(2.0f);
                             character.setBasicRecuperateMP(1.0f);
