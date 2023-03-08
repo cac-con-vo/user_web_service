@@ -69,4 +69,6 @@ public class AuthController {
         return authService.validateAccessTokenForLoginGame(request, token);
     }
 
+
+
 }

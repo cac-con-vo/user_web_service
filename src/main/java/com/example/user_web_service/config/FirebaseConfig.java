@@ -1,6 +1,8 @@
 package com.example.user_web_service.config;
 
 import com.google.auth.oauth2.GoogleCredentials;
+//import com.google.cloud.storage.Storage;
+//import com.google.cloud.storage.StorageOptions;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import com.google.firebase.FirebaseApp;
@@ -23,9 +25,9 @@ public class FirebaseConfig {
                 .fromStream( new ClassPathResource("firebase-service-account.json").getInputStream());
         FirebaseOptions firebaseOptions = FirebaseOptions.builder()
                 .setCredentials(googleCredentials)
-                .setStorageBucket("web-game-rpg.appspot.com")
+                .setStorageBucket("new-game-rpg.appspot.com")
                 .build();
-        FirebaseApp app = FirebaseApp.initializeApp(firebaseOptions, "web-game-rpg");
+        FirebaseApp app = FirebaseApp.initializeApp(firebaseOptions, "new-game-rpg");
         return FirebaseMessaging.getInstance(app);
     }
 

@@ -3,6 +3,7 @@ package com.example.user_web_service.service.impl;
 import com.example.user_web_service.dto.PrincipalDTO;
 import com.example.user_web_service.dto.ResponseObject;
 import com.example.user_web_service.entity.*;
+import com.example.user_web_service.exception.UserNotFoundException;
 import com.example.user_web_service.form.LoginForm;
 import com.example.user_web_service.form.LogoutForm;
 import com.example.user_web_service.form.RefreshTokenForm;
@@ -10,9 +11,11 @@ import com.example.user_web_service.payload.response.GameTokenResponse;
 import com.example.user_web_service.payload.response.RefreshTokenResponse;
 import com.example.user_web_service.redis.locker.DistributedLocker;
 import com.example.user_web_service.redis.locker.LockExecutionResult;
+import com.example.user_web_service.repository.UserRepository;
 import com.example.user_web_service.security.jwt.*;
 import com.example.user_web_service.security.userprincipal.Principal;
 import com.example.user_web_service.service.AuthService;
+
 import io.jsonwebtoken.ExpiredJwtException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.modelmapper.ModelMapper;
@@ -30,8 +33,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.time.Instant;
 
 @Service
@@ -53,7 +58,6 @@ public class AuthServiceImpl implements AuthService {
     private AuthenticationManager authenticationManager;
     @Autowired
     private BlackAccessTokenServiceImp blackAccessTokenServiceImp;
-
 
     @Autowired
     private DistributedLocker distributedLocker;
@@ -209,4 +213,7 @@ public class AuthServiceImpl implements AuthService {
             logger.error("Fail clear account " + username + " from cache");
         }
     }
+
+
 }
+

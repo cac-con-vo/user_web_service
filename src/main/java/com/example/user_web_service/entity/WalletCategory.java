@@ -3,6 +3,7 @@ package com.example.user_web_service.entity;
 import lombok.*;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @NoArgsConstructor
@@ -11,7 +12,7 @@ import javax.persistence.*;
 @Getter
 @Builder
 @Table(name = "wallet_category")
-public class WalletCategory {
+public class WalletCategory implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

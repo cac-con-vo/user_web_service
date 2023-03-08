@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @NoArgsConstructor
@@ -12,7 +13,7 @@ import javax.persistence.*;
 @Getter
 @Builder
 @Table(name = "activity_type")
-public class ActivityType {
+public class ActivityType implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

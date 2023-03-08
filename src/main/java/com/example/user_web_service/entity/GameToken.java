@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.time.Instant;
 
 @NoArgsConstructor
@@ -15,7 +16,7 @@ import java.time.Instant;
 @Setter
 @Entity
 @Table(name = "game_token")
-public class GameToken {
+public class GameToken implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;

@@ -5,6 +5,7 @@ import lombok.*;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.time.Instant;
 
 @Getter
@@ -14,7 +15,7 @@ import java.time.Instant;
 @Builder
 @Entity
 @Table(name = "black_access_token")
-public class BlackAccessToken {
+public class BlackAccessToken implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;

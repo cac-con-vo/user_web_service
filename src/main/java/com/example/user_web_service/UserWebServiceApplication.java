@@ -3,6 +3,7 @@ package com.example.user_web_service;
 import com.example.user_web_service.entity.Role;
 import com.example.user_web_service.entity.User;
 import com.example.user_web_service.entity.UserStatus;
+import com.example.user_web_service.google.AppProperties;
 import com.example.user_web_service.helper.Constant;
 import com.example.user_web_service.repository.UserRepository;
 import com.example.user_web_service.service.RoleService;
@@ -10,6 +11,7 @@ import com.example.user_web_service.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import javax.annotation.PostConstruct;
 
 @SpringBootApplication
+@EnableConfigurationProperties(AppProperties.class)
 public class UserWebServiceApplication {
 
     public static void main(String[] args) {

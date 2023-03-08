@@ -11,11 +11,16 @@ import com.example.user_web_service.exception.UserNotFoundException;
 import com.example.user_web_service.form.*;
 import com.example.user_web_service.helper.Constant;
 import com.example.user_web_service.helper.EmailService;
+import com.example.user_web_service.redis.locker.DistributedLocker;
 import com.example.user_web_service.repository.RoleRepository;
 import com.example.user_web_service.repository.UserRepository;
 import com.example.user_web_service.security.MyAuthentication;
 import com.example.user_web_service.security.SecurityUtils;
+import com.example.user_web_service.security.userprincipal.Principal;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,15 +28,19 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class UserService extends BaseController {
+    private static final Logger LOG = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
     private RedisTemplate redisTemplate;
@@ -50,6 +59,9 @@ public class UserService extends BaseController {
 
     @Autowired
     EmailService emailService;
+    @Autowired
+    private CacheManager cacheManager;
+
 
     private boolean verify(String raw, String hashed) {
         return passwordEncoder.matches(raw, hashed);
@@ -226,4 +238,6 @@ public class UserService extends BaseController {
 
         return new ResponseEntity<>(new ResponseForm<>("change password successfully", true), HttpStatus.OK);
     }
+
+
 }

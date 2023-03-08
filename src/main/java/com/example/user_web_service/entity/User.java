@@ -16,6 +16,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.annotation.Nullable;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -34,7 +36,7 @@ import java.util.List;
 
 })
 @JsonIgnoreProperties({"hibernateLazyInitializer"})
-public class User {
+public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", updatable = false, nullable = false)
@@ -59,6 +61,11 @@ public class User {
 
     private String phone;
     private String code;
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private AuthProvider provider;
+
+    private String providerId;
 
     private UserStatus status;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateTimeUtils.DATETIME_FORMAT)

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @NoArgsConstructor
@@ -14,7 +15,7 @@ import javax.persistence.*;
 @Builder
 @Table(name = "level")
 @JsonIgnoreProperties({"hibernateLazyInitializer"})
-public class Level {
+public class Level implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

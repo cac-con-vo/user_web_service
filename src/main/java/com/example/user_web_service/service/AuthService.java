@@ -5,7 +5,9 @@ import com.example.user_web_service.form.GameTokenForm;
 import com.example.user_web_service.form.LoginForm;
 import com.example.user_web_service.form.LogoutForm;
 import com.example.user_web_service.form.RefreshTokenForm;
+import com.example.user_web_service.security.userprincipal.Principal;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -17,5 +19,4 @@ public interface AuthService {
     ResponseEntity<ResponseObject> validateAccessTokenForLoginGame(HttpServletRequest request, String token);
     ResponseEntity<ResponseObject> refreshAccessToken(HttpServletRequest request, RefreshTokenForm refreshTokenForm);
     ResponseEntity<ResponseObject> logout(HttpServletRequest request, LogoutForm logoutForm);
-
 }

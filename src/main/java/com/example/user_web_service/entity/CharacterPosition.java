@@ -5,13 +5,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serializable;
 
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
 @Getter
-public class CharacterPosition {
+public class CharacterPosition implements Serializable {
     private double x;
     private double y;
     private double z;

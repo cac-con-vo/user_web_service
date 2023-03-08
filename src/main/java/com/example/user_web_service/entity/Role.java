@@ -5,6 +5,7 @@ package com.example.user_web_service.entity;
 import lombok.*;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @AllArgsConstructor
@@ -13,7 +14,7 @@ import javax.persistence.*;
 @Getter
 @Builder
 @Table(name = "role")
-public class Role {
+public class Role implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
