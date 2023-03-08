@@ -1,6 +1,7 @@
 package com.example.user_web_service.entity;
 
 import lombok.*;
+import org.springframework.data.redis.core.RedisHash;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -15,6 +16,7 @@ import java.time.Instant;
 @Builder
 @Entity
 @Table(name = "black_access_token")
+
 public class BlackAccessToken implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

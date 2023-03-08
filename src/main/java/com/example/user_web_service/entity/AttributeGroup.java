@@ -4,6 +4,7 @@ package com.example.user_web_service.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+import org.springframework.data.redis.core.RedisHash;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -17,6 +18,7 @@ import java.util.Map;
 @Getter
 @Builder
 @Table(name = "attribute_group")
+
 public class AttributeGroup implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

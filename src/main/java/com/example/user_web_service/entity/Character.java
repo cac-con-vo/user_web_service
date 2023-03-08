@@ -4,6 +4,7 @@ import com.example.user_web_service.helper.DateTimeUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import org.springframework.data.redis.core.RedisHash;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
@@ -19,6 +20,7 @@ import java.util.List;
 @Getter
 @Builder
 @Table(name = "character")
+
 public class Character implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

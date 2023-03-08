@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
+import org.springframework.data.redis.core.RedisHash;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -19,6 +20,7 @@ import java.util.List;
 @Builder
 @Table(name = "game_server")
 @JsonIgnoreProperties({"hibernateLazyInitializer"})
+
 public class GameServer implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

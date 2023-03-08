@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.redis.core.RedisHash;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -16,6 +17,7 @@ import java.time.Instant;
 @Setter
 @Entity
 @Table(name = "refresh_token")
+
 public class RefreshToken implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
