@@ -66,7 +66,8 @@ public class SecurityConfig {
 
 		//Accept not need authenticate
 		http.authorizeRequests().antMatchers("/swagger-ui/**", "/v3/api-docs/**","/api/v1/auth/login", "/api/v1/auth/accessToken",
-				"/error", "/v2/api-docs/**", "/api/v1/notification/**", "/users/signUp")
+				"/error", "/v2/api-docs/**", "/api/v1/notification/**", "/users/signUp","/users/change-password", "/users/profile", "/users/update",
+						"/users/resetPassword")
 				.permitAll();
 
 		// apis that need Admin Role to call
@@ -75,14 +76,13 @@ public class SecurityConfig {
 
 		// api that need User or Admin role to call
 		http.authorizeRequests()
-				.antMatchers("/users/change-password", "/users/profile", "/users/update",
-				"/users/resetPassword", "/api/v1/gameServer/getAllGameServerOfUser", "/images/**")
+				.antMatchers( "/api/v1/gameServer/getAllGameServerOfUser", "/images/**")
 				.hasAnyAuthority(Constant.USER_ROLE, Constant.ADMIN_ROLE);
 
 		//api that need User role to call
 		http.authorizeRequests().antMatchers(
-			"/api/v1/gameServer/createGameServer", "/api/v1/character/createCharacter","/api/v1/auth/loginGame",
-				"/api/v1/gameServer/addUserToGame", "/api/v1/character/getCharacter", "/api/v1/character/getAttributeEffect",
+			"/api/v1/gameServer/createGameServer", "/api/v1/character/createCharacter",
+				"/api/v1/gameServer/addUserToGame","/api/v1/auth/loginGame", "/api/v1/character/getCharacter", "/api/v1/character/getAttributeEffect",
 				"/api/v1/character/getAllLevelOfGame"
 		).hasAnyAuthority(Constant.USER_ROLE);
 

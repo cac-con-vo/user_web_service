@@ -60,7 +60,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     private DistributedLocker distributedLocker;
-
+    @Autowired
+    private UserRepository userRepository;
 
 
     public AuthServiceImpl(ModelMapper mapper) {
@@ -150,12 +151,12 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public ResponseEntity<LoginGameResponse> validateAccessTokenForLoginGame(HttpServletRequest request, AccessTokenForm accessTokenForm) {
-
-        String accessToken = jwtProvider.getJwt(request);
-        boolean isValidAccessToken = jwtProvider.validateToken(accessToken);
-
         GameTokenResponse gameTokenResponse = null;
-        if (isValidAccessToken && accessToken.trim().equals(accessTokenForm.getAccessToken())) {
+        Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = userRepository.findByUsername(jwtProvider.getUsernameFromToken(accessTokenForm.getAccessToken())).orElseThrow(
+                ()-> new UserNotFoundException(jwtProvider.getUsernameFromToken(accessTokenForm.getAccessToken()),"User not found")
+        );
+        if (principal.getUsername().equalsIgnoreCase(user.getUsername())) {
             // Access token is valid
             Principal userPrincipal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             String gameToken = gameTokenProvider.createGameToken(userPrincipal.getUsername()).getToken();
