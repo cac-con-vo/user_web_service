@@ -4,10 +4,9 @@ import com.example.user_web_service.dto.PrincipalDTO;
 import com.example.user_web_service.dto.ResponseObject;
 import com.example.user_web_service.entity.*;
 import com.example.user_web_service.exception.UserNotFoundException;
-import com.example.user_web_service.form.LoginForm;
-import com.example.user_web_service.form.LogoutForm;
-import com.example.user_web_service.form.RefreshTokenForm;
+import com.example.user_web_service.form.*;
 import com.example.user_web_service.payload.response.GameTokenResponse;
+import com.example.user_web_service.payload.response.LoginGameResponse;
 import com.example.user_web_service.payload.response.RefreshTokenResponse;
 import com.example.user_web_service.redis.locker.DistributedLocker;
 import com.example.user_web_service.redis.locker.LockExecutionResult;
@@ -124,30 +123,28 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public ResponseEntity<ResponseObject> validateAccessTokenForLoginGame(HttpServletRequest request, String token) {
+    public ResponseEntity<LoginGameResponse> validateAccessTokenForLoginGame(HttpServletRequest request, AccessTokenForm accessTokenForm) {
 
         String accessToken = jwtProvider.getJwt(request);
         boolean isValidAccessToken = jwtProvider.validateToken(accessToken);
 
-        if (isValidAccessToken && accessToken.trim().equals(token)) {
+        GameTokenResponse gameTokenResponse = null;
+        if (isValidAccessToken && accessToken.trim().equals(accessTokenForm.getAccessToken())) {
             // Access token is valid
             Principal userPrincipal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             String gameToken = gameTokenProvider.createGameToken(userPrincipal.getUsername()).getToken();
-            GameTokenResponse gameTokenResponse = new GameTokenResponse(gameToken);
-
-            return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject(
+            return ResponseEntity.status(HttpStatus.OK).body(new LoginGameResponse(
                     HttpStatus.OK.toString(),
                     "Get game token successfully.",
-                    null,
-                    gameTokenResponse
+                    gameToken
             ));
         } else {
             // Access token is invalid
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseObject(
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginGameResponse(
                     HttpStatus.BAD_REQUEST.toString(),
                     "Access token is not valid",
-                    null, null
-                    ));
+                    null
+            ));
         }
     }
 

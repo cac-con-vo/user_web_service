@@ -1,10 +1,8 @@
 package com.example.user_web_service.controller;
 
 import com.example.user_web_service.dto.ResponseObject;
-import com.example.user_web_service.form.GameTokenForm;
-import com.example.user_web_service.form.LoginForm;
-import com.example.user_web_service.form.LogoutForm;
-import com.example.user_web_service.form.RefreshTokenForm;
+import com.example.user_web_service.form.*;
+import com.example.user_web_service.payload.response.LoginGameResponse;
 import com.example.user_web_service.service.impl.AuthServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -62,11 +60,12 @@ public class AuthController {
     }
     @PostMapping("/auth/loginGame")
     @Operation(summary = "For login game")
-    public ResponseEntity<ResponseObject> loginGame(HttpServletRequest request, String token) {
-        if(token == null || token.isEmpty() || token.isBlank()){
-            return new ResponseEntity<ResponseObject>(new ResponseObject(HttpStatus.BAD_REQUEST.toString(), "Please input refresh token", null, null), HttpStatus.BAD_REQUEST);
+    public ResponseEntity<LoginGameResponse> loginGame(HttpServletRequest request,@RequestBody AccessTokenForm accessTokenForm) {
+        if(accessTokenForm.getAccessToken() == null || accessTokenForm.getAccessToken()
+                .isEmpty() || accessTokenForm.getAccessToken().isBlank()){
+            return new ResponseEntity<LoginGameResponse>(new LoginGameResponse(HttpStatus.BAD_REQUEST.toString(), "Please input refresh token",  null), HttpStatus.BAD_REQUEST);
         }
-        return authService.validateAccessTokenForLoginGame(request, token);
+        return authService.validateAccessTokenForLoginGame(request, accessTokenForm);
     }
 
 

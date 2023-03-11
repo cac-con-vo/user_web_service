@@ -6,6 +6,7 @@ import com.example.user_web_service.service.impl.GameServerServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,9 +30,9 @@ public class GameServerController {
     @SecurityRequirements
     public ResponseEntity<ResponseObject> createGameServer(
             @Valid @RequestBody GameTokenForm gameTokenForm,
-            @Parameter(description = "Input name of game server (EX: server1, server2,..)") @RequestParam(name = "serverName") String serverName,
-            @Parameter(description = "Input name of game (EX: Dead of souls)") @RequestParam(name = "gameName") String gameName,
-            @Parameter(description = "Input name of game") @RequestParam(name = "usernames") List<String> usernames
+            @RequestBody @Parameter(description = "Input name of game server (EX: server1, server2,..)") @RequestParam(name = "serverName") String serverName,
+            @RequestBody @Parameter(description = "Input name of game (EX: Dead of souls)") @RequestParam(name = "gameName") String gameName,
+            @RequestBody @Parameter(description = "Input name of game") @RequestParam(name = "usernames") List<String> usernames
             ) {
         if(gameTokenForm.getGameToken() == null || gameTokenForm.getGameToken().isEmpty() || gameTokenForm.getGameToken().isBlank()||
         serverName == null || serverName.isEmpty() || serverName.isBlank() ||
