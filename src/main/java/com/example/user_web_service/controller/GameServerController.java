@@ -1,6 +1,7 @@
 package com.example.user_web_service.controller;
 
 import com.example.user_web_service.dto.ResponseObject;
+import com.example.user_web_service.form.CreateGameServerForm;
 import com.example.user_web_service.form.GameTokenForm;
 import com.example.user_web_service.service.impl.GameServerServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,20 +30,18 @@ public class GameServerController {
     @PostMapping("/createGameServer")
     @SecurityRequirements
     public ResponseEntity<ResponseObject> createGameServer(
-            @Valid @RequestBody GameTokenForm gameTokenForm,
-            @RequestBody @Parameter(description = "Input name of game server (EX: server1, server2,..)") @RequestParam(name = "serverName") String serverName,
-            @RequestBody @Parameter(description = "Input name of game (EX: Dead of souls)") @RequestParam(name = "gameName") String gameName,
-            @RequestBody @Parameter(description = "Input name of game") @RequestParam(name = "usernames") List<String> usernames
-            ) {
-        if(gameTokenForm.getGameToken() == null || gameTokenForm.getGameToken().isEmpty() || gameTokenForm.getGameToken().isBlank()||
-        serverName == null || serverName.isEmpty() || serverName.isBlank() ||
-                gameName == null || gameName.isEmpty() || gameName.isBlank()){
+            @Valid @RequestBody CreateGameServerForm createGameServerForm
+           ) {
+        if(createGameServerForm.getGameTokenOfRoomMaster() == null || createGameServerForm.getGameTokenOfRoomMaster().isEmpty() || createGameServerForm.getGameTokenOfRoomMaster().isBlank()||
+                createGameServerForm.getGameTokenOfUsers() == null ||
+        createGameServerForm.getServerName() == null || createGameServerForm.getServerName().isEmpty() || createGameServerForm.getServerName().isBlank() ||
+                createGameServerForm.getGameName() == null || createGameServerForm.getGameName().isEmpty() || createGameServerForm.getGameName().isBlank()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                     new ResponseObject(HttpStatus.BAD_REQUEST.toString(),
                             "Please input data.", null, null)
             );
         }
-        return gameServerService.createGameServer(gameTokenForm ,serverName.trim(), gameName.trim(), usernames);
+        return gameServerService.createGameServer(createGameServerForm);
     }
     @Operation(summary = "For get all game server")
     @GetMapping("/getAllGameServer")

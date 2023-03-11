@@ -6,6 +6,7 @@ import com.example.user_web_service.entity.Character;
 import com.example.user_web_service.exception.DuplicateException;
 import com.example.user_web_service.exception.NotFoundException;
 import com.example.user_web_service.exception.ResourceNotFoundException;
+import com.example.user_web_service.form.CreateGameServerForm;
 import com.example.user_web_service.form.GameTokenForm;
 import com.example.user_web_service.helper.Constant;
 import com.example.user_web_service.redis.RedisValueCache;
@@ -113,35 +114,37 @@ public class GameServerServiceImpl implements GameServerService {
 //    }
 
     @Override
-    public ResponseEntity<ResponseObject> createGameServer(GameTokenForm gameTokenForm, String serverName, String gameName, List<String> usernames) {
-        return gameTokenProvider.findByToken(DigestUtils.sha3_256Hex(gameTokenForm.getGameToken()))
+    public ResponseEntity<ResponseObject> createGameServer(CreateGameServerForm createGameServerForm) {
+        return gameTokenProvider.findByToken(DigestUtils.sha3_256Hex(createGameServerForm.getGameTokenOfRoomMaster()))
                 .map(gameTokenProvider::verifyExpiration)
                 .map(GameToken::getUser)
                 .map(user -> {
 // kiểm tra xem game có tồn tại không
-                    Game game = gameRepository.findByName(gameName).orElseThrow(
+                    Game game = gameRepository.findByName(createGameServerForm.getGameName()).orElseThrow(
                             () -> new NotFoundException("Game not found")
                     );
 // kiểm tra server có trùng tên không
-                    this.checkDuplicate(serverName, game);
+                    this.checkDuplicate(createGameServerForm.getServerName(), game);
                     GameServer gameServer;
                     // add user tạo server vào danh sách
                     List<User> users = new ArrayList<>();
                     users.add(user);
-
-                    // add các user tham gia vào server vào danh sách
-                    if (usernames.size() > 0) {
-                        for (String username : usernames) {
-                            User user_join = userRepository.findByUsername(username).orElseThrow(
-                                    () -> new UsernameNotFoundException("Username: " + username + " not found")
-                            );
-                            users.add(user_join);
-                        }
+                    for (String gameTokenUser : createGameServerForm.getGameTokenOfUsers()
+                         ) {
+                        GameToken gameToken = gameTokenProvider.findByToken(DigestUtils.sha3_256Hex(gameTokenUser)).orElseThrow(
+                                ()-> new NotFoundException("Token of user not found!")
+                        );
+                        User user_join = userRepository.findByUsername(gameToken.getUser()
+                                .getUsername()).orElseThrow(
+                                ()-> new UsernameNotFoundException(gameToken.getUser().getUsername()+ " not found")
+                        );
+                        users.add(user_join);
                     }
+
 
                     // tạo game server mới
                     gameServer = GameServer.builder()
-                            .name(serverName)
+                            .name(createGameServerForm.getServerName())
                             .status(GameServerStatus.ACTIVE)
                             .game(game)
                             .users(users)
