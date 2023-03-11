@@ -63,11 +63,7 @@ public class User implements Serializable {
 
     private String phone;
     private String code;
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    private AuthProvider provider;
 
-    private String providerId;
 
     private UserStatus status;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateTimeUtils.DATETIME_FORMAT)
