@@ -19,7 +19,7 @@ import java.util.List;
 @Setter
 @Getter
 @Builder
-@Table(name = "character")
+@Table(name = "characters")
 
 public class Character implements Serializable {
     @Id
