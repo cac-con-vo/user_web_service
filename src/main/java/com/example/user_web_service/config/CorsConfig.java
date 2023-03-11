@@ -21,7 +21,7 @@ public class CorsConfig implements WebMvcConfigurer {
 				.allowedMethods(HttpMethod.GET.name(), HttpMethod.POST.name(), HttpMethod.PUT.name(),
 						HttpMethod.OPTIONS.name(), HttpMethod.DELETE.name())
 				.allowedHeaders("*")
-				.allowedOrigins("http://localhost:8080","https://project-game-rpg.herokuapp.com", "http://localhost:3000");
+				.allowedOrigins("*");
 	}
 
 //	@Bean
