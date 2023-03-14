@@ -152,23 +152,14 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public ResponseEntity<LoginGameResponse> validateAccessTokenForLoginGame(HttpServletRequest request, AccessTokenForm accessTokenForm) {
         GameTokenResponse gameTokenResponse = null;
-        Object principalObj = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (!(principalObj instanceof Principal)) {
-            // Nếu principalObj không phải là một đối tượng Principal thì trả về lỗi
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginGameResponse(
-                    HttpStatus.BAD_REQUEST.toString(),
-                    "Access token is not valid",
-                    null
-            ));
-        }
-        Principal principal = (Principal) principalObj;
-        User user = userRepository.findByUsername(jwtProvider.getUsernameFromToken(accessTokenForm.getAccessToken())).orElseThrow(
-                ()-> new UserNotFoundException(jwtProvider.getUsernameFromToken(accessTokenForm.getAccessToken()),"User not found")
+        String username = jwtProvider.getUsernameFromToken(accessTokenForm.getAccessToken());
+        User user = userRepository.findByUsername(username).orElseThrow(
+                ()-> new UserNotFoundException(username, "User not found")
         );
-        if (principal.getUsername().equalsIgnoreCase(user.getUsername())) {
+        String principalUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (principalUsername.equalsIgnoreCase(user.getUsername())) {
             // Access token is valid
-            Principal userPrincipal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            String gameToken = gameTokenProvider.createGameToken(userPrincipal.getUsername()).getToken();
+            String gameToken = gameTokenProvider.createGameToken(principalUsername).getToken();
             return ResponseEntity.status(HttpStatus.OK).body(new LoginGameResponse(
                     HttpStatus.OK.toString(),
                     "Get game token successfully.",
@@ -183,6 +174,7 @@ public class AuthServiceImpl implements AuthService {
             ));
         }
     }
+
 //    public ResponseEntity<LoginGameResponse> validateAccessTokenForLoginGame(HttpServletRequest request, AccessTokenForm accessTokenForm) {
 //        GameTokenResponse gameTokenResponse = null;
 //        Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
