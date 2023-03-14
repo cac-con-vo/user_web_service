@@ -159,7 +159,7 @@ public class AuthServiceImpl implements AuthService {
         if (principal.getUsername().equalsIgnoreCase(user.getUsername())) {
             // Access token is valid
             Principal userPrincipal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            String gameToken =(String) gameTokenProvider.createGameToken(user.getUsername()).getToken();
+            String gameToken =(String) gameTokenProvider.createGameToken(userPrincipal.getUsername()).getToken();
             return ResponseEntity.status(HttpStatus.OK).body(new LoginGameResponse(
                     HttpStatus.OK.toString(),
                     "Get game token successfully.",
