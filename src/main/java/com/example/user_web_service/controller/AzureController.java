@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 import com.example.user_web_service.service.AzureBlobService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -26,8 +27,8 @@ public class AzureController {
 
     @Autowired
     private AzureBlobService azureBlobAdapter;
-
-    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Upload files to Azure Storage")
+    @PostMapping( consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> upload
             (@RequestParam MultipartFile file)
             throws IOException {
@@ -35,23 +36,23 @@ public class AzureController {
         String fileName = azureBlobAdapter.upload(file);
         return ResponseEntity.ok(fileName);
     }
-
+    @Operation(summary = "Get all files to Azure Storage")
     @GetMapping
     public ResponseEntity<List<String>> getAllBlobs() {
 
         List<String> items = azureBlobAdapter.listBlobs();
         return ResponseEntity.ok(items);
     }
-
-    @DeleteMapping
+    @Operation(summary = "Delete file by name of file from Azure Storage")
+    @DeleteMapping("/{filename}")
     public ResponseEntity<Boolean> delete
             (@RequestParam String fileName) {
 
         azureBlobAdapter.deleteBlob(fileName);
         return ResponseEntity.ok().build();
     }
-
-    @GetMapping("/download")
+    @Operation(summary = "Dowload file by name of file from Azure Storage")
+    @GetMapping("/{filename}")
     public ResponseEntity<Resource> getFile
             (@RequestParam String fileName)
             throws URISyntaxException {
