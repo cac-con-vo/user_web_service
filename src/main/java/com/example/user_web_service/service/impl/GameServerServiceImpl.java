@@ -141,15 +141,31 @@ public ResponseEntity<ResponseObject> createGameServer(CreateGameServerForm crea
                 }
 
 
-                // tạo game server mới
                 gameServer = GameServer.builder()
-                        .name(createGameServerForm.getServerName())
-                        .status(GameServerStatus.ACTIVE)
-                        .game(game)
-                        .users(users)
-                        .build();
+                            .name(createGameServerForm.getServerName())
+                            .status(GameServerStatus.ACTIVE)
+                            .create_at(Constant.getCurrentDateTime())
+                            .createBy(user)
+                            .users(users)
+                            .game(game)
+                            .build();
 
-
+                    gameServerRepository.save(gameServer);
+                    //tao cac nhan vat cho cac user tham gia vao game server voi trang thai INACTIVE
+                    CharacterType characterType = characterTypeRepository.findByName("Hunter").orElseThrow(
+                            ()-> new ResourceNotFoundException("Hunter", null ," not found")
+                    );
+                    for (User user_join: gameServer.getUsers()
+                    ) {
+                        Character character = Character.builder()
+                                .gameServer(gameServer)
+                                .user(user_join)
+                                .position(new CharacterPosition(0, 0 ,0))
+                                .characterType(characterType)
+                                .status(CharacterStatus.INACTIVE)
+                                .build();
+                        characterRepository.save(character);
+                    }
 
                 return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseObject(
                         HttpStatus.CREATED.toString(),

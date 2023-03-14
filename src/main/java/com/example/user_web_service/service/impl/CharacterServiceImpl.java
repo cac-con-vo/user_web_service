@@ -5,6 +5,7 @@ import com.example.user_web_service.entity.*;
 import com.example.user_web_service.entity.Character;
 import com.example.user_web_service.exception.NotFoundException;
 import com.example.user_web_service.exception.ResourceNotFoundException;
+import com.example.user_web_service.form.CreateCharacterForm;
 import com.example.user_web_service.form.GameTokenForm;
 import com.example.user_web_service.repository.*;
 import com.example.user_web_service.security.jwt.GameTokenException;
@@ -48,15 +49,15 @@ public class CharacterServiceImpl implements CharacterService {
     private CharacterAttributeRepository characterAttributeRepository;
 
     @Override
-    public ResponseEntity<ResponseObject> creatCharacter(GameTokenForm gameTokenForm, String characterName, String gameName, String serverName) {
-        return  gameTokenProvider.findByToken(DigestUtils.sha3_256Hex(gameTokenForm.getGameToken()))
+    public ResponseEntity<ResponseObject> creatCharacter(CreateCharacterForm createCharacterForm) {
+        return  gameTokenProvider.findByToken(DigestUtils.sha3_256Hex(createCharacterForm.getGameToken()))
                 .map(gameTokenProvider::verifyExpiration)
                 .map(GameToken::getUser)
                 .map(user -> {
-                    Game game = gameRepository.findByName(gameName).orElseThrow(
+                    Game game = gameRepository.findByName(createCharacterForm.getGameName()).orElseThrow(
                             ()-> new NotFoundException("Name of game not found")
                     );
-                    GameServer gameServer = gameServerRepository.findByNameAndGame(serverName, game).orElseThrow(
+                    GameServer gameServer = gameServerRepository.findByNameAndGame(createCharacterForm.getServerName(), game).orElseThrow(
                             ()-> new NotFoundException("Game server not found.")
                     );
 
@@ -66,7 +67,7 @@ public class CharacterServiceImpl implements CharacterService {
 
                     //kiem tra xem voi user va gameServer thi co character cos status Active + Deleted nao ton tai k
                     if (characters.size() == 0) {
-                        if (!characterRepository.existsByName(characterName)) {
+                        if (!characterRepository.existsByName(createCharacterForm.getCharacterName())) {
                             if(!characterRepository.existsByGameServer(gameServer)){
                                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                                         new ResponseObject(HttpStatus.NOT_FOUND.toString(), "Not found character.", null, null)
@@ -79,7 +80,7 @@ public class CharacterServiceImpl implements CharacterService {
                             //tao nhan vat
                             character.setCreate_at(date);
                             character.setStatus(CharacterStatus.ACTIVE);
-                            character.setName(characterName);
+                            character.setName(createCharacterForm.getCharacterName());
                             character.setBasicMaxHP(200.0f);
                             character.setCurrentHP(1.0f);
                             character.setBasicMaxMP(100.0f);
