@@ -57,11 +57,6 @@ public class SecurityConfig {
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.cors().and().csrf().disable();
 
-		//đăng nhập bằng google
-		http.authorizeRequests()
-				.antMatchers("/oauth2/**")
-				.permitAll().and()
-				.oauth2Login();
 
 
 		//Accept not need authenticate
