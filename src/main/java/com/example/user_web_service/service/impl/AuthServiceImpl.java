@@ -21,6 +21,7 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,9 +32,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.print.DocFlavor;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.time.Instant;
@@ -156,23 +159,36 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByUsername(username).orElseThrow(
                 ()-> new UserNotFoundException(username, "User not found")
         );
-        String principalUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (principalUsername.equalsIgnoreCase(user.getUsername())) {
-            // Access token is valid
-            String gameToken = gameTokenProvider.createGameToken(principalUsername).getToken();
-            return ResponseEntity.status(HttpStatus.OK).body(new LoginGameResponse(
-                    HttpStatus.OK.toString(),
-                    "Get game token successfully.",
-                    gameToken
-            ));
-        } else {
-            // Access token is invalid
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginGameResponse(
-                    HttpStatus.BAD_REQUEST.toString(),
-                    "Access token is not valid",
-                    null
-            ));
+        Cache userDetailsCache = cacheManager.getCache("userDetails");
+        Cache.ValueWrapper valueWrapper = userDetailsCache.get(username);
+        if (valueWrapper != null) {
+            Object cachedValue = valueWrapper.get();
+            if (cachedValue instanceof UserDetails) {
+                UserDetails userDetails = (UserDetails) cachedValue;
+                String userDetailsStr = userDetails.getUsername();
+                if (userDetailsStr .equalsIgnoreCase(user.getUsername())) {
+                    // Access token is valid
+                    String gameToken = gameTokenProvider.createGameToken(username).getToken();
+                    return ResponseEntity.status(HttpStatus.OK).body(new LoginGameResponse(
+                            HttpStatus.OK.toString(),
+                            "Get game token successfully.",
+                            gameToken
+                    ));
+                } else {
+                    // Access token is invalid
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginGameResponse(
+                            HttpStatus.BAD_REQUEST.toString(),
+                            "Access token is not valid",
+                            null
+                    ));
+                }
+            }
         }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginGameResponse(
+                HttpStatus.BAD_REQUEST.toString(),
+                "You do not login",
+                null
+        ));
     }
 
 
