@@ -71,7 +71,7 @@ public class SecurityConfig {
 
 		// api that need User or Admin role to call
 		http.authorizeRequests()
-				.antMatchers( "/api/v1/gameServer/getAllGameServerOfUser", "/images/**")
+				.antMatchers( "/api/v1/gameServer/getAllGameServerOfUser", "/files/**")
 				.hasAnyAuthority(Constant.USER_ROLE, Constant.ADMIN_ROLE);
 
 		//api that need User role to call
