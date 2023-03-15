@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import org.hibernate.criterion.Example;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,7 +25,7 @@ public class CharacterController {
 
 
     @Operation(summary = "For create a character")
-    @PostMapping("/createCharacter")
+    @PostMapping(value = "/createCharacter", produces = MediaType.APPLICATION_JSON_VALUE)
     @SecurityRequirements
     public ResponseEntity<ResponseObject> createCharacter(
             @RequestBody @Valid CreateCharacterForm createCharacterForm
@@ -42,7 +43,7 @@ public class CharacterController {
     }
 
     @Operation(summary = "For get a character for user")
-    @GetMapping("/getCharacter")
+    @GetMapping(value = "/getCharacter", produces = MediaType.APPLICATION_JSON_VALUE)
     @SecurityRequirements
     public ResponseEntity<ResponseObject> getCharacter(
            GameTokenForm gameTokenForm,
@@ -61,7 +62,7 @@ public class CharacterController {
     }
 
     @Operation(summary = "For get effects of attribute for user")
-    @GetMapping("/getAttributeEffect")
+    @GetMapping(value = "/getAttributeEffect", produces = MediaType.APPLICATION_JSON_VALUE)
     @SecurityRequirements
     public ResponseEntity<ResponseObject> getAttributeEffect(
             GameTokenForm gameTokenForm,
@@ -80,7 +81,7 @@ public class CharacterController {
     }
 
     @Operation(summary = "For get levels of game for user")
-    @GetMapping("/getAllLevelOfGame")
+    @GetMapping(value = "/getAllLevelOfGame", produces = MediaType.APPLICATION_JSON_VALUE)
     @SecurityRequirements
     public ResponseEntity<ResponseObject> getAllLevelOfGame(
             GameTokenForm gameTokenForm,

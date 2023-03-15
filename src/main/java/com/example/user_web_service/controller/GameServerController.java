@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,7 +28,7 @@ public class GameServerController {
 
 
     @Operation(summary = "For create a game server")
-    @PostMapping("/createGameServer")
+    @PostMapping(value = "/createGameServer", produces = MediaType.APPLICATION_JSON_VALUE)
     @SecurityRequirements
     public ResponseEntity<ResponseObject> createGameServer(
             @Valid @RequestBody CreateGameServerForm createGameServerForm
@@ -44,7 +45,7 @@ public class GameServerController {
         return gameServerService.createGameServer(createGameServerForm);
     }
     @Operation(summary = "For get all game server")
-    @GetMapping("/getAllGameServer")
+    @GetMapping(value = "/getAllGameServer", produces = MediaType.APPLICATION_JSON_VALUE)
     @SecurityRequirements
     public ResponseEntity<ResponseObject> getAllGameServer(
             @Parameter(description = "Input name of game (EX: Dead of souls)") @RequestParam(name = "gameName") String gameName
@@ -59,7 +60,7 @@ public class GameServerController {
     }
 
     @Operation(summary = "For get all game server of an user")
-    @PostMapping("/getAllGameServerOfUser")
+    @PostMapping(value = "/getAllGameServerOfUser", produces = MediaType.APPLICATION_JSON_VALUE)
     @SecurityRequirements
     public ResponseEntity<ResponseObject> getAllGameServerOfUser(
             @Valid @RequestBody GameTokenForm gameTokenForm,

@@ -27,7 +27,7 @@ public class UserController extends BaseController {
     @Autowired
     UserService userService;
 
-    @GetMapping("/list")
+    @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAll() {
         List<User> allUser = userService.getAllUser();
         ResponseForm<List<User>> responseForm = new ResponseForm<>();
@@ -38,28 +38,28 @@ public class UserController extends BaseController {
         return new ResponseEntity<>(responseForm, HttpStatus.OK);
     }
 
-    @PostMapping("/resetPassword/{id}")
+    @PostMapping(value = "/resetPassword/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> resetPassword(@PathVariable("id") Long id) {
 
         return userService.resetPassword(id);
     }
 
-    @PostMapping("/forget-password")
+    @PostMapping(value = "/forget-password", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> forgetPassword(@RequestBody String email) {
         return userService.anaylyzeForgetPassword(email);
     }
 
-    @PostMapping("/retype-password")
+    @PostMapping(value = "/retype-password", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> retypePassword(@RequestBody RetypePasswordForm retypePasswordForm) {
         return userService.anaylyzeRetypePassword(retypePasswordForm);
     }
 
-    @PostMapping("/login")
+    @PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> login(@RequestBody LoginForm loginForm) {
         return userService.authenticateUser(loginForm);
     }
 
-    @GetMapping("/profile")
+    @GetMapping(value = "/profile", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> profile() {
         User user = userService.getUserById(getCurrentUserId());
         ResponseForm<User> responseForm = new ResponseForm<>();
@@ -69,17 +69,17 @@ public class UserController extends BaseController {
         return new ResponseEntity<>(responseForm, HttpStatus.OK);
     }
 
-    @PutMapping("/update")
+    @PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> update(@RequestBody UpdateUserForm updateUserForm) throws ParseException {
         return userService.updateUser(updateUserForm);
     }
 
-    @PutMapping("/change-password")
+    @PutMapping(value = "/change-password", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> changePassword(@RequestBody UpdatePasswordForm updatePasswordForm) {
         return userService.changePassword(updatePasswordForm.getOldPassword(), updatePasswordForm.getNewPassword());
     }
 
-    @GetMapping("/logout")
+    @GetMapping(value = "/logout", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> logout() {
         SecurityContext securityContext = SecurityContextHolder.getContext();
         securityContext.setAuthentication(null);
@@ -87,7 +87,7 @@ public class UserController extends BaseController {
         return new ResponseEntity<>(new ResponseForm<>("logout complete", true), HttpStatus.OK);
     }
 
-    @PostMapping("/signUp")
+    @PostMapping(value = "/signUp", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> add(@RequestBody SignUpForm signUpForm) throws ParseException {
         return userService.createUser(signUpForm);
     }

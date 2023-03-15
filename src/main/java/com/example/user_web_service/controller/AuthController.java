@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +25,7 @@ public class AuthController {
     private AuthServiceImpl authService;
 
     @Operation(summary = "For login", description = "test")
-    @PostMapping("/auth/login")
+    @PostMapping(value="/auth/login", produces = MediaType.APPLICATION_JSON_VALUE)
     @SecurityRequirements
     public ResponseEntity<ResponseObject> login(@Valid @RequestBody LoginForm loginForm) {
         if(loginForm.getUsername().isEmpty() || loginForm.getUsername().isBlank() || loginForm.getUsername() == null){
@@ -35,13 +36,13 @@ public class AuthController {
         }
         return authService.login(loginForm);
     }
-    @PostMapping("/auth/validation")
+    @PostMapping(value = "/auth/validation", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "For getting user information after login")
     public ResponseEntity<ResponseObject> reloadUserByJWT() {
         return authService.validateAccessToken();
     }
 
-    @PostMapping("/auth/accessToken")
+    @PostMapping(value = "/auth/accessToken", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "For getting new access token by refresh token after it expired")
     public ResponseEntity<ResponseObject> refreshAccessToken(HttpServletRequest request, @Valid @RequestBody RefreshTokenForm refreshTokenForm) {
         if(refreshTokenForm.getRefreshToken() == null || refreshTokenForm.getRefreshToken().isEmpty() || refreshTokenForm.getRefreshToken().isBlank()){
@@ -50,7 +51,7 @@ public class AuthController {
         return authService.refreshAccessToken(request, refreshTokenForm);
     }
 
-    @PostMapping("/auth/logout")
+    @PostMapping(value = "/auth/logout", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "For logout")
     public ResponseEntity<ResponseObject> logout(HttpServletRequest request, @Valid @RequestBody LogoutForm logoutForm) {
         if(logoutForm.getRefreshToken() == null || logoutForm.getRefreshToken().isEmpty() || logoutForm.getRefreshToken().isBlank()){
@@ -58,7 +59,7 @@ public class AuthController {
         }
         return authService.logout(request, logoutForm);
     }
-    @PostMapping("/auth/loginGame")
+    @PostMapping(value = "/auth/loginGame", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "For login game")
     public ResponseEntity<LoginGameResponse> loginGame(HttpServletRequest request,@RequestBody AccessTokenForm accessTokenForm) {
         if(accessTokenForm.getAccessToken() == null || accessTokenForm.getAccessToken()
