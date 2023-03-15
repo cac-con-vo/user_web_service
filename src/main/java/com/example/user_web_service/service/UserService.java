@@ -139,6 +139,8 @@ public class UserService extends BaseController {
     public ResponseEntity<?> updateUser(UpdateUserForm updateUserForm) throws ParseException {
         this.checkDuplicate(updateUserForm.getPhone(), updateUserForm.getEmail());
 
+        Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
         User updateUser = this.getUserById(getCurrentUserId());
         updateUser.setPassword(this.generateHash(updateUserForm.getPassword()));
         updateUser.setFirstName(updateUserForm.getFirstname());
@@ -148,7 +150,7 @@ public class UserService extends BaseController {
         updateUser.setUpdateAt(Constant.getCurrentDateTime());
         updateUser.setUpdateAt(null);
 
-        userRepository.save(updateUser);
+//        userRepository.save(principal);
 
         return new ResponseEntity<>(new ResponseForm<>("Account Updated", true), HttpStatus.OK);
     }

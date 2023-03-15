@@ -1,12 +1,16 @@
 package com.example.user_web_service.controller;
 
 import com.example.user_web_service.dto.ResponseObject;
+import com.example.user_web_service.dto.UserDTO;
 import com.example.user_web_service.entity.User;
+import com.example.user_web_service.exception.UserNotFoundException;
 import com.example.user_web_service.form.*;
+import com.example.user_web_service.repository.UserRepository;
 import com.example.user_web_service.security.userprincipal.Principal;
 import com.example.user_web_service.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -26,6 +30,8 @@ public class UserController extends BaseController {
 
     @Autowired
     UserService userService;
+    @Autowired
+    private UserRepository userRepository;
 
     @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAll() {
@@ -61,9 +67,14 @@ public class UserController extends BaseController {
 
     @GetMapping(value = "/profile", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> profile() {
-        User user = userService.getUserById(getCurrentUserId());
-        ResponseForm<User> responseForm = new ResponseForm<>();
-        responseForm.setData(user);
+        Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = userRepository.findByUsername(principal.getUsername()).orElseThrow(
+                ()-> new UserNotFoundException(principal.getUsername(),"User not found")
+        );
+        ModelMapper modelMapper = new ModelMapper();
+        UserDTO userDTO = modelMapper.map(user, UserDTO.class);
+        ResponseForm<UserDTO> responseForm = new ResponseForm<>();
+        responseForm.setData(userDTO);
         responseForm.setMessage("get profile successfully");
         responseForm.setResult(true);
         return new ResponseEntity<>(responseForm, HttpStatus.OK);
