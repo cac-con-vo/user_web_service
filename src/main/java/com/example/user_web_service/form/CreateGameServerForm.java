@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.annotation.Nullable;
 import javax.validation.constraints.Pattern;
 import java.util.List;
 @NoArgsConstructor
@@ -16,6 +17,7 @@ public class CreateGameServerForm {
 
     private String gameName;
     private String serverName;
+    @Nullable
     private List<String> gameTokenOfUsers;
     @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
     private String gameTokenOfRoomMaster;

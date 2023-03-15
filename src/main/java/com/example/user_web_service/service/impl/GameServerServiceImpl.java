@@ -128,17 +128,20 @@ public ResponseEntity<ResponseObject> createGameServer(CreateGameServerForm crea
                 // add user tạo server vào danh sách
                 List<User> users = new ArrayList<>();
                 users.add(user);
-                for (String gameTokenUser : createGameServerForm.getGameTokenOfUsers()
-                ) {
-                    GameToken gameToken = gameTokenProvider.findByToken(DigestUtils.sha3_256Hex(gameTokenUser)).orElseThrow(
-                            ()-> new NotFoundException("Token of user not found!")
-                    );
-                    User user_join = userRepository.findByUsername(gameToken.getUser()
-                            .getUsername()).orElseThrow(
-                            ()-> new UsernameNotFoundException(gameToken.getUser().getUsername()+ " not found")
-                    );
-                    users.add(user_join);
+                if(createGameServerForm.getGameTokenOfUsers() != null){
+                    for (String gameTokenUser : createGameServerForm.getGameTokenOfUsers()
+                    ) {
+                        GameToken gameToken = gameTokenProvider.findByToken(DigestUtils.sha3_256Hex(gameTokenUser)).orElseThrow(
+                                ()-> new NotFoundException("Token of user not found!")
+                        );
+                        User user_join = userRepository.findByUsername(gameToken.getUser()
+                                .getUsername()).orElseThrow(
+                                ()-> new UsernameNotFoundException(gameToken.getUser().getUsername()+ " not found")
+                        );
+                        users.add(user_join);
+                    }
                 }
+
 
 
                 gameServer = GameServer.builder()

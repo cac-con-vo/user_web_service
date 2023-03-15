@@ -34,7 +34,6 @@ public class GameServerController {
             @Valid @RequestBody CreateGameServerForm createGameServerForm
            ) {
         if(createGameServerForm.getGameTokenOfRoomMaster() == null || createGameServerForm.getGameTokenOfRoomMaster().isEmpty() || createGameServerForm.getGameTokenOfRoomMaster().isBlank()||
-                createGameServerForm.getGameTokenOfUsers() == null ||
         createGameServerForm.getServerName() == null || createGameServerForm.getServerName().isEmpty() || createGameServerForm.getServerName().isBlank() ||
                 createGameServerForm.getGameName() == null || createGameServerForm.getGameName().isEmpty() || createGameServerForm.getGameName().isBlank()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
