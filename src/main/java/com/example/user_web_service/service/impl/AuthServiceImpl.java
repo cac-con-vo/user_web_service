@@ -96,7 +96,6 @@ public class AuthServiceImpl implements AuthService {
             Principal userPrinciple = (Principal) authentication.getPrincipal();
             String accessToken = jwtProvider.createToken(userPrinciple);
             String refreshToken = refreshTokenProvider.createRefreshToken(loginForm.getUsername()).getToken();
-            String gameToken = gameTokenProvider.createGameToken(loginForm.getUsername()).getToken();
             return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ResponseObject(HttpStatus.ACCEPTED.toString(), "Login success!", null, new JwtResponse(accessToken, refreshToken)));
         } catch (AuthenticationException e) {
             if (e instanceof DisabledException) {

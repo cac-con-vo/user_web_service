@@ -11,6 +11,7 @@ import com.example.user_web_service.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -36,8 +37,11 @@ public class UserController extends BaseController {
     @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAll() {
         List<User> allUser = userService.getAllUser();
-        ResponseForm<List<User>> responseForm = new ResponseForm<>();
-        responseForm.setData(allUser);
+        ModelMapper modelMapper = new ModelMapper();
+        List<UserDTO> userDTOList = modelMapper.map(allUser, new TypeToken<List<UserDTO>>() {
+        }.getType());
+        ResponseForm<List<UserDTO>> responseForm = new ResponseForm<>();
+        responseForm.setData(userDTOList);
         responseForm.setMessage("get Users successfully");
         responseForm.setResult(true);
 

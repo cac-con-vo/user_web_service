@@ -1,6 +1,7 @@
 package com.example.user_web_service.service;
 
 import com.example.user_web_service.controller.BaseController;
+import com.example.user_web_service.dto.UserDTO;
 import com.example.user_web_service.entity.Role;
 import com.example.user_web_service.entity.User;
 import com.example.user_web_service.entity.UserStatus;
@@ -17,6 +18,8 @@ import com.example.user_web_service.repository.UserRepository;
 import com.example.user_web_service.security.MyAuthentication;
 import com.example.user_web_service.security.SecurityUtils;
 import com.example.user_web_service.security.userprincipal.Principal;
+import com.example.user_web_service.service.impl.AuthServiceImpl;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +59,8 @@ public class UserService extends BaseController {
 
     @Autowired
     SecurityUtils securityUtils;
-
+    @Autowired
+    AuthServiceImpl authService;
     @Autowired
     EmailService emailService;
     @Autowired
@@ -138,33 +142,36 @@ public class UserService extends BaseController {
 
     public ResponseEntity<?> updateUser(UpdateUserForm updateUserForm) throws ParseException {
         this.checkDuplicate(updateUserForm.getPhone(), updateUserForm.getEmail());
-
         Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = userRepository.findByUsername(principal.getUsername()).orElseThrow(
+                ()-> new UserNotFoundException(principal.getUsername(),"User not found")
+        );
 
-        User updateUser = this.getUserById(getCurrentUserId());
-        updateUser.setPassword(this.generateHash(updateUserForm.getPassword()));
-        updateUser.setFirstName(updateUserForm.getFirstname());
-        updateUser.setLastName(updateUserForm.getLastname());
-        updateUser.setEmail(updateUserForm.getEmail());
-        updateUser.setPhone(updateUserForm.getPhone());
-        updateUser.setUpdateAt(Constant.getCurrentDateTime());
-        updateUser.setUpdateAt(null);
+        user.setFirstName(updateUserForm.getFirstname());
+        user.setLastName(updateUserForm.getLastname());
+        user.setEmail(updateUserForm.getEmail());
+        user.setPhone(updateUserForm.getPhone());
+        user.setUpdateAt(Constant.getCurrentDateTime());
+        userRepository.save(user);
 
-//        userRepository.save(principal);
+
 
         return new ResponseEntity<>(new ResponseForm<>("Account Updated", true), HttpStatus.OK);
     }
 
     public ResponseEntity<?> changePassword(String oldPassword, String newPassword) {
-        User updatePasswordUser = this.getUserById(getCurrentUserId());
+       // User updatePasswordUser = this.getUserById(getCurrentUserId());
+        Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = userRepository.findByUsername(principal.getUsername()).orElseThrow(
+                ()-> new UserNotFoundException(principal.getUsername(),"User not found")
+        );
 
-        boolean valid = this.verify(oldPassword, updatePasswordUser.getPassword());
-        if (!valid) {
+        if (passwordEncoder.encode(oldPassword).equalsIgnoreCase(user.getPassword())) {
             throw new AuthenticateException("old password is not match");
         }
-        updatePasswordUser.setPassword(this.generateHash(newPassword));
+        user.setPassword(this.generateHash(newPassword));
 
-        userRepository.save(updatePasswordUser);
+        userRepository.save(user);
 
         return new ResponseEntity<>(new ResponseForm<>("Password Updated", true), HttpStatus.OK);
     }
