@@ -152,7 +152,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public ResponseEntity<LoginGameResponse> validateAccessTokenForLoginGame(HttpServletRequest request, AccessTokenForm accessTokenForm) {
+    public ResponseEntity<LoginGameResponse> validateAccessTokenForLoginGame(AccessTokenForm accessTokenForm) {
         GameTokenResponse gameTokenResponse = null;
         String username = jwtProvider.getUsernameFromToken(accessTokenForm.getAccessToken());
         User user = userRepository.findByUsername(username).orElseThrow(
