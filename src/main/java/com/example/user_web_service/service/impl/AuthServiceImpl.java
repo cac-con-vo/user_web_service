@@ -171,14 +171,15 @@ public class AuthServiceImpl implements AuthService {
                     return ResponseEntity.status(HttpStatus.OK).body(new LoginGameResponse(
                             HttpStatus.OK.toString(),
                             "Get game token successfully.",
-                            gameToken
+                            gameToken,
+                            user.getFirstName() + " " + user.getLastName()
                     ));
                 } else {
                     // Access token is invalid
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginGameResponse(
                             HttpStatus.BAD_REQUEST.toString(),
                             "Access token is not valid",
-                            null
+                            null, null
                     ));
                 }
             }
@@ -186,7 +187,7 @@ public class AuthServiceImpl implements AuthService {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginGameResponse(
                 HttpStatus.BAD_REQUEST.toString(),
                 "You do not login",
-                null
+                null, null
         ));
     }
 

@@ -14,4 +14,5 @@ public class LoginGameResponse {
     private String status;
     private String message;
     private String gameToken;
+    private String nameOfUser;
 }
