@@ -9,6 +9,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CharacterAttributeDTO {
-    public int id;
-    public Long pointValue;
+    private int id;
+    private Long pointValue;
 }

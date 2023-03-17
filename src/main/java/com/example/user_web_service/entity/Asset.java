@@ -28,6 +28,7 @@ public class Asset implements Serializable {
     @JoinColumn(name = "asset_type_id", nullable = false, referencedColumnName = "id")
     private AssetType assetType;
     private String image;
+    private String description;
     private int cost;
     @ManyToOne
     @JsonIgnore
