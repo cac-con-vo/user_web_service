@@ -29,8 +29,8 @@ public class GameController {
         if(saveGameForm.getGameName().isEmpty() || saveGameForm.getGameName().isBlank() || saveGameForm.getGameName() == null ||
                 saveGameForm.getServerName().isEmpty() || saveGameForm.getServerName().isBlank() || saveGameForm.getServerName() == null ||
                 saveGameForm.getGameToken().isEmpty() || saveGameForm.getGameToken().isBlank() || saveGameForm.getGameToken() == null ||
-                saveGameForm.getJsonString().isEmpty() || saveGameForm.getJsonString().isBlank() || saveGameForm.getJsonString() == null ||
-                saveGameForm.getDataSharing().isEmpty() || saveGameForm.getDataSharing().isBlank() || saveGameForm.getDataSharing() == null ){
+                saveGameForm.getJsonString().isEmpty() || saveGameForm.getJsonString().toString().isBlank() || saveGameForm.getJsonString() == null ||
+                saveGameForm.getDataSharing().isEmpty() || saveGameForm.getDataSharing().toString().isBlank() || saveGameForm.getDataSharing() == null ){
             return new ResponseEntity<ResponseObject>(new ResponseObject(HttpStatus.BAD_REQUEST.toString(), "Please input data", null, null), HttpStatus.BAD_REQUEST);
         }
         return gameService.saveGame(saveGameForm);

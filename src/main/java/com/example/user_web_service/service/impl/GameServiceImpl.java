@@ -80,7 +80,7 @@ public class GameServiceImpl implements GameService {
                     ObjectMapper objectMapper = new ObjectMapper();
                     GameDataDTO gameData;
                     try {
-                        gameData = objectMapper.readValue(saveGameForm.getJsonString(), GameDataDTO.class);
+                        gameData = objectMapper.readValue(saveGameForm.getJsonString().toString(), GameDataDTO.class);
                     } catch (JsonProcessingException e) {
                         throw new RuntimeException(e);
                     }
@@ -206,20 +206,20 @@ public class GameServiceImpl implements GameService {
                     if (characterData == null){
                         characterData = CharacterData.builder()
                                 .character(character)
-                                .jsonString(saveGameForm.getJsonString())
+                                .jsonString(saveGameForm.getJsonString().toString())
                                 .build();
                     }else{
-                        characterData.setJsonString(saveGameForm.getJsonString());
+                        characterData.setJsonString(saveGameForm.getJsonString().toString());
                     }
                     characterDataRepository.save(characterData);
                 GameServerData gameServerData = gameServerDataRepository.findByGameServer(gameServer);
                 if(gameServerData == null){
                     gameServerData = GameServerData.builder()
-                            .jsonDataSharing(saveGameForm.getDataSharing())
+                            .jsonDataSharing(saveGameForm.getDataSharing().toString())
                             .gameServer(gameServer)
                             .build();
                 }else{
-                    gameServerData.setJsonDataSharing(saveGameForm.getDataSharing());
+                    gameServerData.setJsonDataSharing(saveGameForm.getDataSharing().toString());
                 }
                 gameServerDataRepository.save(gameServerData);
                 return ResponseEntity.status(HttpStatus.OK).body(
