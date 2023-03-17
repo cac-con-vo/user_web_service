@@ -64,7 +64,7 @@ public class AuthController {
     public ResponseEntity<LoginGameResponse> loginGame(@RequestBody AccessTokenForm accessTokenForm) {
         if(accessTokenForm.getAccessToken() == null || accessTokenForm.getAccessToken()
                 .isEmpty() || accessTokenForm.getAccessToken().isBlank()){
-            return new ResponseEntity<LoginGameResponse>(new LoginGameResponse(HttpStatus.BAD_REQUEST.toString(), "Please input refresh token",  null), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<LoginGameResponse>(new LoginGameResponse(HttpStatus.BAD_REQUEST.toString(), "Please input refresh token",  null, null), HttpStatus.BAD_REQUEST);
         }
         return authService.validateAccessTokenForLoginGame(accessTokenForm);
     }

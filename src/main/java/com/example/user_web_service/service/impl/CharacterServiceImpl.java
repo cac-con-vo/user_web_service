@@ -189,12 +189,12 @@ public class CharacterServiceImpl implements CharacterService {
                     GameServer server = gameServerRepository.findByNameAndGame(serverName, game).orElseThrow(
                             ()-> new NotFoundException("Game server not found.")
                     );
-                    if(characterRepository.findByUserAndGameServerAndStatus(user, server,CharacterStatus.INACTIVE) == null) {
+                    if(characterRepository.findByUserAndGameServerAndStatus(user, server,CharacterStatus.INACTIVE) != null) {
                       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                               new ResponseObject(HttpStatus.BAD_REQUEST.toString(),
                                       "Character does not active. Please create an charater.", null,null)
                       );
-                    }else if(characterRepository.findByUserAndGameServerAndStatus(user, server,CharacterStatus.DELETED) == null) {
+                    }else if(characterRepository.findByUserAndGameServerAndStatus(user, server,CharacterStatus.DELETED) != null) {
                         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
                                 new ResponseObject(HttpStatus.FORBIDDEN.toString(),
                                         "Character has been deleted can't enter the game.", null,null)
@@ -217,7 +217,7 @@ public class CharacterServiceImpl implements CharacterService {
                             .levelPoint(levelProgress1.getExpPoint())
                             .build();
 
-                    character1.setCurrentLevel(levelProgressDTO);
+                    character1.setCharacterLevel(levelProgressDTO);
                     //Lay attribute cua nhan vat
                     List<CharacterAttribute> characterAttributes = character.getCharacterAttributes();
                     List<CharacterAttributeDTO> characterAttributeDTOs = new ArrayList<>();
@@ -262,7 +262,7 @@ public class CharacterServiceImpl implements CharacterService {
                         }
                         characterAttributeDTOs.add(characterAttributeDTO);
                     }
-                    character1.setCharacterAttributes(characterAttributeDTOs);
+                    character1.setAttribute(characterAttributeDTOs);
                     return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ResponseObject(HttpStatus.ACCEPTED.toString(), "Get character successfully!", null, character1));
                 })
                 .orElseThrow(() -> new RefreshTokenException("Game token is not in database!"));

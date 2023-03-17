@@ -11,4 +11,5 @@ import java.util.Optional;
 @Repository
 public interface CharacterAttributeRepository extends JpaRepository<CharacterAttribute, Long> {
     Optional<CharacterAttribute> findByCharacterAndAttributeGroup(Character character, AttributeGroup attributeGroup);
+    List<CharacterAttribute> findAllByCharacter(Character character);
 }

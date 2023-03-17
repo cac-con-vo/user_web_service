@@ -1,0 +1,24 @@
+package com.example.user_web_service.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.util.List;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class GameDataDTO {
+    private float x;
+    private float y;
+    private float z;
+    private Long pcharS;
+    private String pnameS;
+    private CharacterDTO characterS;
+    private Long goldS;
+    private List<AssetDTO> weaponS;
+}
+

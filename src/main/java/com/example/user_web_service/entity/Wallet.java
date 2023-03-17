@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.springframework.data.redis.core.RedisHash;
 
+import javax.annotation.Nullable;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
@@ -42,5 +43,6 @@ public class Wallet implements Serializable {
     private Character character;
 
     @OneToMany(mappedBy = "wallet")
+    @Nullable
     private List<Transaction> transactions;
 }

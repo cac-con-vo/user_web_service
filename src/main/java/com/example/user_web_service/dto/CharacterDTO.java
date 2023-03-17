@@ -38,8 +38,7 @@ public class CharacterDTO {
     private float basicRecuperateMP;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "0.0")
     private float basicRecuperateStamina;
-    private int free_point;
-    private LevelProgressDTO currentLevel;
-    private List<CharacterAttributeDTO> characterAttributes;
-
+    private int freePoint;
+    private LevelProgressDTO characterLevel;
+    private List<CharacterAttributeDTO> attribute;
 }
