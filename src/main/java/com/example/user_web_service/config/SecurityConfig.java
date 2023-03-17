@@ -64,13 +64,13 @@ public class SecurityConfig {
 				"/error", "/v2/api-docs/**", "/api/v1/notification/**", "/users/signUp","/users/change-password","/api/v1/auth/loginGame", "/users/profile", "/users/update",
 						"/users/resetPassword","/api/v1/gameServer/createGameServer", "/api/v1/character/createCharacter", "/api/v1/character/getCharacter",
 						"/api/v1/character/getAttributeEffect",
-						"/api/v1/character/getAllLevelOfGame",
-						"/users/list", "/api/v1/gameServer/getAllGameServer")
+						"/api/v1/character/getAllLevelOfGame"
+						)
 				.permitAll();
 
 		// apis that need Admin Role to call
 		http.authorizeRequests()
-				.antMatchers().hasAnyAuthority(Constant.ADMIN_ROLE);
+				.antMatchers("/users/list", "/api/v1/gameServer/getAllGameServer").hasAnyAuthority(Constant.ADMIN_ROLE);
 
 		// api that need User or Admin role to call
 		http.authorizeRequests()
