@@ -64,8 +64,8 @@ public class SecurityConfig {
 				"/error", "/v2/api-docs/**", "/api/v1/notification/**", "/users/signUp","/users/change-password","/api/v1/auth/loginGame", "/users/profile", "/users/update",
 						"/users/resetPassword","/api/v1/gameServer/createGameServer", "/api/v1/character/createCharacter", "/api/v1/character/getCharacter",
 						"/api/v1/character/getAttributeEffect",
-						"/api/v1/character/getAllLevelOfGame"
-						)
+						"/api/v1/character/getAllLevelOfGame",
+						"/api/v1/game/saveGame", "/api/v1/game/loadGame")
 				.permitAll();
 
 		// apis that need Admin Role to call

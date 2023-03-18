@@ -1,5 +1,6 @@
 package com.example.user_web_service.form;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,6 +16,6 @@ public class SaveGameForm {
     private String gameToken;
     private String gameName;
     private String serverName;
-    private String jsonString;
-    private String dataSharing;
+    private JsonNode jsonString;
+    private JsonNode dataSharing;
 }
