@@ -66,7 +66,7 @@ public class SecurityConfig {
 						"/api/v1/character/getAttributeEffect",
 						"/api/v1/character/getAllLevelOfGame",
 						"/api/v1/game/saveGame", "/api/v1/game/loadGame")
-				.permitAll();
+				.permitAll().anyRequest().authenticated();
 
 		// apis that need Admin Role to call
 		http.authorizeRequests()
@@ -83,7 +83,7 @@ public class SecurityConfig {
 
 		).hasAnyAuthority(Constant.USER_ROLE);
 
-		http.authorizeRequests().anyRequest().authenticated();
+
 		http.addFilterBefore(jwtTokenFilter(), BasicAuthenticationFilter.class);
 
 		return http.build();
