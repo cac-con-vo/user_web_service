@@ -66,7 +66,7 @@ public class SecurityConfig {
 						"/api/v1/character/getAttributeEffect",
 						"/api/v1/character/getAllLevelOfGame",
 						"/api/v1/game/saveGame", "/api/v1/game/loadGame")
-				.permitAll().anyRequest().authenticated();
+				.permitAll();
 
 		// apis that need Admin Role to call
 		http.authorizeRequests()
@@ -75,15 +75,16 @@ public class SecurityConfig {
 		// api that need User or Admin role to call
 		http.authorizeRequests()
 				.antMatchers( "/api/v1/gameServer/getAllGameServerOfUser", "/files/**")
-				.hasAnyAuthority(Constant.USER_ROLE, Constant.ADMIN_ROLE);
+				.hasAnyAuthority(Constant.USER_ROLE, Constant.ADMIN_ROLE)
+				;
 
 		//api that need User role to call
 		http.authorizeRequests().antMatchers(
 
 
-		).hasAnyAuthority(Constant.USER_ROLE);
+		).hasAnyAuthority(Constant.USER_ROLE).anyRequest().authenticated();
 
-
+		//http.authorizeRequests().anyRequest().authenticated();
 		http.addFilterBefore(jwtTokenFilter(), BasicAuthenticationFilter.class);
 
 		return http.build();
