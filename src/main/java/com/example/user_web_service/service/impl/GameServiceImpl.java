@@ -84,6 +84,16 @@ public class GameServiceImpl implements GameService {
                     } catch (JsonProcessingException e) {
                         throw new RuntimeException(e);
                     }
+
+                    if (gameData == null || gameData.getCharacterS() == null|| gameData.getWeaponS().size() == 0 ||
+                    gameData.getGoldS() == null || gameData.getPcharS() == null || gameData.getPnameS() == null
+                    ){
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                                new ResponseObject(HttpStatus.BAD_REQUEST.toString(),
+                                        "Data of character is not valid",
+                                        null, null)
+                        );
+                    }
                     //update character
                     character.setBasicMaxHP(gameData.getCharacterS().getBasicMaxHP());
                     character.setCurrentHP(gameData.getCharacterS().getCurrentHP());
