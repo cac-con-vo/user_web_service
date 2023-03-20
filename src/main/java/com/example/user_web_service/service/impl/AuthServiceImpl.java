@@ -211,8 +211,6 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public ResponseEntity<LoginGameResponse> validateAccessTokenForLoginGame(AccessTokenForm accessTokenForm) {
-
-
         String username = jwtProvider.getUsernameFromToken(accessTokenForm.getAccessToken());
         User user = userRepository.findByUsername(username).orElseThrow(
                 ()-> new UserNotFoundException(username, "User not found")
