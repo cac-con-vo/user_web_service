@@ -144,11 +144,29 @@ public class AuthServiceImpl implements AuthService {
 //        }
 //    }
 
+//    @Override
+//    public ResponseEntity<ResponseObject> validateAccessToken() {
+//        Principal userPrinciple = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//        PrincipalDTO principalDTO = mapper.map(userPrinciple, PrincipalDTO.class);
+//        return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ResponseObject(HttpStatus.ACCEPTED.toString(), "Validate access token success!", null, principalDTO));
+//    }
     @Override
     public ResponseEntity<ResponseObject> validateAccessToken() {
-        Principal userPrinciple = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        PrincipalDTO principalDTO = mapper.map(userPrinciple, PrincipalDTO.class);
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ResponseObject(HttpStatus.ACCEPTED.toString(), "Validate access token success!", null, principalDTO));
+        String lockKey = "validateAccessTokenLock";
+        LockExecutionResult<ResponseEntity<ResponseObject>> lockResult = distributedLocker.lock(lockKey, 60, 10, () -> {
+            // Code to execute inside the lock
+            Principal userPrinciple = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            PrincipalDTO principalDTO = mapper.map(userPrinciple, PrincipalDTO.class);
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ResponseObject(HttpStatus.ACCEPTED.toString(), "Validate access token success!", null, principalDTO));
+        });
+
+        if (lockResult.isLockAcquired()) {
+            // Lock was acquired successfully
+            return lockResult.getResultIfLockAcquired();
+        } else {
+            // Lock was not acquired
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ResponseObject(HttpStatus.CONFLICT.toString(), "Cannot validate access token. Another instance of the method is already running.", null, null));
+        }
     }
 
     @Override

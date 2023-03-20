@@ -14,8 +14,8 @@ public class RedisConfig {
     @Bean
     public LettuceConnectionFactory redisConnectionFactory(){
         final RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration();
-        configuration.setHostName("localhost");
-        configuration.setPort(6379);
+        configuration.setHostName("redisgame.redis.cache.windows.net");
+        configuration.setPort(6380);
 
         return new LettuceConnectionFactory();
     }
