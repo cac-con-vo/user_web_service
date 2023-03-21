@@ -1,5 +1,6 @@
 package com.example.user_web_service.service.impl;
 
+import com.example.user_web_service.dto.GameServerDTO;
 import com.example.user_web_service.dto.ResponseObject;
 import com.example.user_web_service.entity.*;
 import com.example.user_web_service.entity.Character;
@@ -9,6 +10,7 @@ import com.example.user_web_service.exception.ResourceNotFoundException;
 import com.example.user_web_service.form.CreateGameServerForm;
 import com.example.user_web_service.form.GameTokenForm;
 import com.example.user_web_service.helper.Constant;
+import com.example.user_web_service.payload.response.GetGameServerOfUserResponse;
 import com.example.user_web_service.redis.RedisValueCache;
 import com.example.user_web_service.redis.locker.DistributedLocker;
 import com.example.user_web_service.redis.locker.LockExecutionResult;
@@ -17,6 +19,8 @@ import com.example.user_web_service.security.jwt.GameTokenException;
 import com.example.user_web_service.security.jwt.GameTokenProvider;
 import com.example.user_web_service.service.GameServerService;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -154,21 +158,21 @@ public ResponseEntity<ResponseObject> createGameServer(CreateGameServerForm crea
                             .build();
 
                     gameServerRepository.save(gameServer);
-                    //tao cac nhan vat cho cac user tham gia vao game server voi trang thai INACTIVE
-                    CharacterType characterType = characterTypeRepository.findByName("Hunter").orElseThrow(
-                            ()-> new ResourceNotFoundException("Hunter", null ," not found")
-                    );
-                    for (User user_join: gameServer.getUsers()
-                    ) {
-                        Character character = Character.builder()
-                                .gameServer(gameServer)
-                                .user(user_join)
-                                .position(new CharacterPosition(0, 0 ,0))
-                                .characterType(characterType)
-                                .status(CharacterStatus.INACTIVE)
-                                .build();
-                        characterRepository.save(character);
-                    }
+//                    //tao cac nhan vat cho cac user tham gia vao game server voi trang thai INACTIVE
+//                    CharacterType characterType = characterTypeRepository.findByName("Hunter").orElseThrow(
+//                            ()-> new ResourceNotFoundException("Hunter", null ," not found")
+//                    );
+//                    for (User user_join: gameServer.getUsers()
+//                    ) {
+//                        Character character = Character.builder()
+//                                .gameServer(gameServer)
+//                                .user(user_join)
+//                                .position(new CharacterPosition(0, 0 ,0))
+//                                .characterType(characterType)
+//                                .status(CharacterStatus.INACTIVE)
+//                                .build();
+//                        characterRepository.save(character);
+//                    }
 
                 return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseObject(
                         HttpStatus.CREATED.toString(),
@@ -314,7 +318,7 @@ public ResponseEntity<ResponseObject> createGameServer(CreateGameServerForm crea
 //    }
 
         @Override
-    public ResponseEntity<ResponseObject> getAllGameServerOfUser(GameTokenForm gameTokenForm, String gameName) {
+    public ResponseEntity<GetGameServerOfUserResponse> getAllGameServerOfUser(GameTokenForm gameTokenForm, String gameName) {
         return gameTokenProvider.findByToken(DigestUtils.sha3_256Hex(gameTokenForm.getGameToken()))
                 .map(gameTokenProvider::verifyExpiration)
                 .map(GameToken::getUser)
@@ -322,11 +326,13 @@ public ResponseEntity<ResponseObject> createGameServer(CreateGameServerForm crea
                     Game game = gameRepository.findByName(gameName).orElseThrow(
                             () -> new NotFoundException("Game not found")
                     );
+                    List<GameServer> gameServers = gameServerRepository.findAllByUsersAndGame(userRepository.getByUsername(user.getUsername()), game);
+                    ModelMapper modelMapper = new ModelMapper();
+                    List<GameServerDTO> gameServerDTOS = modelMapper.map(gameServers, new TypeToken<List<GameServerDTO>>() {
+                    }.getType());
                     return ResponseEntity.status(HttpStatus.OK).body(
-                            new ResponseObject(HttpStatus.OK.toString(),
-                                    "Get all server of" + user.getUsername() + "successfully!",
-                                    null,
-                                    gameServerRepository.findAllByUsersAndGame(userRepository.getByUsername(user.getUsername()), game)
+                            new GetGameServerOfUserResponse(HttpStatus.OK.toString(),
+                                    "Get all server of" + user.getUsername() + "successfully!", gameServerDTOS
                             )
                     );
                 })

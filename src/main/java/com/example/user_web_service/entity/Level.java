@@ -31,4 +31,6 @@ public class Level implements Serializable {
     @JsonIgnore
     @JoinColumn(name = "game_id", nullable = false, referencedColumnName = "id")
     private Game game;
+
+
 }

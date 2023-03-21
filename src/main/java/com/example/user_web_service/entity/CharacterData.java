@@ -1,6 +1,8 @@
 package com.example.user_web_service.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.google.gson.JsonObject;
 import lombok.*;
 
 import javax.persistence.*;
@@ -16,7 +18,7 @@ public class CharacterData {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    @Column(columnDefinition = "LONGTEXT")
     private String jsonString;
 
     @ManyToOne

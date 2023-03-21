@@ -18,6 +18,6 @@ public class AssetDTO {
     private String name;
     private String description;
     private int cost;
-    private Long Type ;
+    private Long type ;
     List<AssetAttributeDTO> characterAttribute;
 }
