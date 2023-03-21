@@ -67,6 +67,8 @@ public class AuthServiceImpl implements AuthService {
     private UserRepository userRepository;
 
 
+
+
     public AuthServiceImpl(ModelMapper mapper) {
         this.mapper = mapper;
     }
@@ -169,53 +171,13 @@ public class AuthServiceImpl implements AuthService {
 //        }
 //    }
 
-    @Override
-    public ResponseEntity<LoginGameResponse> validateAccessTokenForLoginGame(AccessTokenForm accessTokenForm) {
-        GameTokenResponse gameTokenResponse = null;
-        String username = jwtProvider.getUsernameFromToken(accessTokenForm.getAccessToken());
-        User user = userRepository.findByUsername(username).orElseThrow(
-                ()-> new UserNotFoundException(username, "User not found")
-        );
-        Cache userDetailsCache = cacheManager.getCache("userDetails");
-        Cache.ValueWrapper valueWrapper = userDetailsCache.get(username);
-        if (valueWrapper != null) {
-            Object cachedValue = valueWrapper.get();
-            if (cachedValue instanceof UserDetails) {
-                UserDetails userDetails = (UserDetails) cachedValue;
-                String userDetailsStr = userDetails.getUsername();
-                if (userDetailsStr .equalsIgnoreCase(user.getUsername())) {
-                    // Access token is valid
-                    String gameToken = gameTokenProvider.createGameToken(username).getToken();
-                    return ResponseEntity.status(HttpStatus.OK).body(new LoginGameResponse(
-                            HttpStatus.OK.toString(),
-                            "Get game token successfully.",
-                            gameToken,
-                            user.getFirstName() + " " + user.getLastName()
-                    ));
-                } else {
-                    // Access token is invalid
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginGameResponse(
-                            HttpStatus.BAD_REQUEST.toString(),
-                            "Access token is not valid",
-                            null, null
-                    ));
-                }
-            }
-        }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginGameResponse(
-                HttpStatus.BAD_REQUEST.toString(),
-                "You do not login",
-                null, null
-        ));
-    }
-
-//    @Override
-//    public ResponseEntity<LoginGameResponse> validateAccessTokenForLoginGame(AccessTokenForm accessTokenForm) {
-//        String username = jwtProvider.getUsernameFromToken(accessTokenForm.getAccessToken());
-//        User user = userRepository.findByUsername(username).orElseThrow(
-//                ()-> new UserNotFoundException(username, "User not found")
-//        );
-//        LockExecutionResult<ResponseEntity<LoginGameResponse>> lockResult = distributedLocker.lock(username, 10, 30, () -> {
+//        @Override
+//        public ResponseEntity<LoginGameResponse> validateAccessTokenForLoginGame(AccessTokenForm accessTokenForm) {
+//            GameTokenResponse gameTokenResponse = null;
+//            String username = jwtProvider.getUsernameFromToken(accessTokenForm.getAccessToken());
+//            User user = userRepository.findByUsername(username).orElseThrow(
+//                    ()-> new UserNotFoundException(username, "User not found")
+//            );
 //            Cache userDetailsCache = cacheManager.getCache("userDetails");
 //            Cache.ValueWrapper valueWrapper = userDetailsCache.get(username);
 //            if (valueWrapper != null) {
@@ -223,7 +185,7 @@ public class AuthServiceImpl implements AuthService {
 //                if (cachedValue instanceof UserDetails) {
 //                    UserDetails userDetails = (UserDetails) cachedValue;
 //                    String userDetailsStr = userDetails.getUsername();
-//                    if (userDetailsStr.equalsIgnoreCase(user.getUsername())) {
+//                    if (userDetailsStr .equalsIgnoreCase(user.getUsername())) {
 //                        // Access token is valid
 //                        String gameToken = gameTokenProvider.createGameToken(username).getToken();
 //                        return ResponseEntity.status(HttpStatus.OK).body(new LoginGameResponse(
@@ -247,19 +209,62 @@ public class AuthServiceImpl implements AuthService {
 //                    "You do not login",
 //                    null, null
 //            ));
-//        });
-//
-//        if (lockResult.isLockAcquired()) {
-//            return lockResult.getResultIfLockAcquired();
-//        } else {
-//            logger.error("Failed to acquire lock for user '{}'", username);
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new LoginGameResponse(
-//                    HttpStatus.INTERNAL_SERVER_ERROR.toString(),
-//                    "Failed to acquire lock",
-//                    null, null
-//            ));
 //        }
-//    }
+
+    @Override
+    public ResponseEntity<LoginGameResponse> validateAccessTokenForLoginGame(AccessTokenForm accessTokenForm) {
+        String username = jwtProvider.getUsernameFromToken(accessTokenForm.getAccessToken());
+        User user = userRepository.findByUsername(username).orElseThrow(
+                ()-> new UserNotFoundException(username, "User not found")
+        );
+        Cache userDetailsCache = cacheManager.getCache("userDetails");
+        Cache.ValueWrapper valueWrapper = userDetailsCache.get(username);
+
+       // DistributedLocker distributedLocker = new DistributedLocker(redisTemplate);
+
+        LockExecutionResult<LoginGameResponse> result = distributedLocker.lock(
+                "validateAccessTokenForLoginGame:" + username,
+                10,
+                5,
+                () -> {
+                    if (valueWrapper != null) {
+                        Object cachedValue = valueWrapper.get();
+                        if (cachedValue instanceof UserDetails) {
+                            UserDetails userDetails = (UserDetails) cachedValue;
+                            String userDetailsStr = userDetails.getUsername();
+                            if (userDetailsStr.equalsIgnoreCase(user.getUsername())) {
+                                // Access token is valid
+                                String gameToken = gameTokenProvider.createGameToken(username).getToken();
+                                return new LoginGameResponse(
+                                        HttpStatus.OK.toString(),
+                                        "Get game token successfully.",
+                                        gameToken,
+                                        user.getFirstName() + " " + user.getLastName()
+                                );
+                            }
+                        }
+                    }
+                    // Access token is invalid
+                    return new LoginGameResponse(
+                            HttpStatus.BAD_REQUEST.toString(),
+                            "Invalid access token.",
+                            null,
+                            null
+                    );
+                }
+        );
+
+        if (result.isLockAcquired()) {
+            return ResponseEntity.ok(result.getResultIfLockAcquired());
+        } else {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
+        }
+    }
+
+
+
+
+
 
 
     @Override
