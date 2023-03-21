@@ -18,6 +18,7 @@ public class RedisConfig {
         configuration.setHostName("redisgame.redis.cache.windows.net");
         configuration.setPort(6380);
         configuration.setPassword(RedisPassword.of("u9yfZFd0ajzbCLbtQ0feuZqCvblvS8zcQAzCaKuAvBw="));
+
         return new LettuceConnectionFactory();
     }
 
