@@ -1,10 +1,10 @@
 package com.example.user_web_service;
 
-import com.example.user_web_service.entity.Role;
-import com.example.user_web_service.entity.User;
-import com.example.user_web_service.entity.UserStatus;
+import com.example.user_web_service.entity.*;
 
 import com.example.user_web_service.helper.Constant;
+import com.example.user_web_service.repository.GameRepository;
+import com.example.user_web_service.repository.LevelRepository;
 import com.example.user_web_service.repository.UserRepository;
 import com.example.user_web_service.service.RoleService;
 
@@ -17,6 +17,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.annotation.PostConstruct;
+import java.util.HashMap;
+import java.util.Map;
 
 @SpringBootApplication
 
@@ -27,12 +29,12 @@ public class UserWebServiceApplication {
     }
 
 
-
     @Autowired
     RoleService roleService;
 
     @Autowired
     UserRepository userRepository;
+
 
     @PostConstruct
     public void initializeRole() {

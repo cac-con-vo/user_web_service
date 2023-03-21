@@ -2,6 +2,7 @@ package com.example.user_web_service.dto;
 
 import com.example.user_web_service.entity.AttributeGroupName;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 @Setter
@@ -13,5 +14,6 @@ import lombok.*;
 
 public class CharacterAttributeDTO {
     private int id;
+    private String name;
     private Long pointValue;
 }

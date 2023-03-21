@@ -15,6 +15,7 @@ public interface CharacterRepository extends JpaRepository<Character, Long> {
     List<Character> findByUserAndGameServerAndStatusIn(User user, GameServer gameServer, List<CharacterStatus> statuses);
     Optional<Character> findByUserAndGameServerAndStatus(User user, GameServer gameServer, CharacterStatus statuses);
     boolean existsByGameServer(GameServer gameServer);
-    Optional<Character> findByUserAndGameServer(User user, GameServer gameServer);
+    Character findByUserAndGameServer(User user, GameServer gameServer);
+
 
 }

@@ -3,6 +3,7 @@ package com.example.user_web_service.controller;
 import com.example.user_web_service.dto.ResponseObject;
 import com.example.user_web_service.form.CreateGameServerForm;
 import com.example.user_web_service.form.GameTokenForm;
+import com.example.user_web_service.payload.response.GetGameServerOfUserResponse;
 import com.example.user_web_service.service.impl.GameServerServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -61,15 +62,15 @@ public class GameServerController {
     @Operation(summary = "For get all game server of an user")
     @PostMapping(value = "/getAllGameServerOfUser", produces = MediaType.APPLICATION_JSON_VALUE)
     @SecurityRequirements
-    public ResponseEntity<ResponseObject> getAllGameServerOfUser(
+    public ResponseEntity<GetGameServerOfUserResponse> getAllGameServerOfUser(
             @Valid @RequestBody GameTokenForm gameTokenForm,
             @Parameter(description = "Input name of game (EX: Dead of souls)") @RequestParam(name = "gameName") String gameName
     ) {
         if(gameTokenForm.getGameToken() == null || gameTokenForm.getGameToken().isEmpty() || gameTokenForm.getGameToken().isBlank()||
                 gameName == null || gameName.isEmpty() || gameName.isBlank()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                    new ResponseObject(HttpStatus.BAD_REQUEST.toString(),
-                            "Please input data.", null, null)
+                    new GetGameServerOfUserResponse(HttpStatus.BAD_REQUEST.toString(),
+                            "Please input data.", null)
             );
         }
         return gameServerService.getAllGameServerOfUser(gameTokenForm,gameName);

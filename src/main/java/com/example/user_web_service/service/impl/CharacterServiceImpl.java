@@ -7,11 +7,12 @@ import com.example.user_web_service.exception.NotFoundException;
 import com.example.user_web_service.exception.ResourceNotFoundException;
 import com.example.user_web_service.form.CreateCharacterForm;
 import com.example.user_web_service.form.GameTokenForm;
+import com.example.user_web_service.payload.response.GetAllLevelOfGameResponse;
+import com.example.user_web_service.payload.response.GetAttributeEffectResponse;
+import com.example.user_web_service.payload.response.GetCharacterResponse;
 import com.example.user_web_service.repository.*;
 import com.example.user_web_service.security.jwt.GameTokenException;
 import com.example.user_web_service.security.jwt.GameTokenProvider;
-import com.example.user_web_service.security.jwt.RefreshTokenException;
-import com.example.user_web_service.security.userprincipal.Principal;
 import com.example.user_web_service.service.CharacterService;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.modelmapper.ModelMapper;
@@ -22,10 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class CharacterServiceImpl implements CharacterService {
@@ -178,7 +176,7 @@ public class CharacterServiceImpl implements CharacterService {
 
 
     @Override
-    public ResponseEntity<ResponseObject> getCharacter(GameTokenForm gameTokenForm, String gameName,String serverName) {
+    public ResponseEntity<GetCharacterResponse> getCharacter(GameTokenForm gameTokenForm, String gameName, String serverName) {
         return  gameTokenProvider.findByToken(DigestUtils.sha3_256Hex(gameTokenForm.getGameToken()))
                 .map(gameTokenProvider::verifyExpiration)
                 .map(GameToken::getUser)
@@ -191,18 +189,16 @@ public class CharacterServiceImpl implements CharacterService {
                     );
                     if(characterRepository.findByUserAndGameServerAndStatus(user, server,CharacterStatus.INACTIVE) != null) {
                       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                              new ResponseObject(HttpStatus.BAD_REQUEST.toString(),
-                                      "Character does not active. Please create an charater.", null,null)
+                              new GetCharacterResponse(HttpStatus.BAD_REQUEST.toString(),
+                                      "Character does not active. Please create an charater.",null)
                       );
                     }else if(characterRepository.findByUserAndGameServerAndStatus(user, server,CharacterStatus.DELETED) != null) {
                         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
-                                new ResponseObject(HttpStatus.FORBIDDEN.toString(),
-                                        "Character has been deleted can't enter the game.", null,null)
+                                new GetCharacterResponse(HttpStatus.FORBIDDEN.toString(),
+                                        "Character has been deleted can't enter the game.", null)
                         );
                     }
-                    Character character = characterRepository.findByUserAndGameServer(user, server).orElseThrow(
-                            ()-> new NotFoundException("Character not found.")
-                    );
+                    Character character = characterRepository.findByUserAndGameServer(user, server);
 
                     ModelMapper modelMapper = new ModelMapper();
                     CharacterDTO character1 = modelMapper.map(character, (Type) CharacterDTO.class);
@@ -227,49 +223,58 @@ public class CharacterServiceImpl implements CharacterService {
                         if(characterAttribute.getAttributeGroup().getName().equalsIgnoreCase(AttributeGroupName.VIGOR.name())){
                             characterAttributeDTO = CharacterAttributeDTO.builder()
                                     .id(AttributeGroupName.VIGOR.ordinal())
+                                    .name(AttributeGroupName.VIGOR.name())
                                     .pointValue(characterAttribute.getValue())
                                     .build();
+
                         } else if(characterAttribute.getAttributeGroup().getName().equalsIgnoreCase(AttributeGroupName.MIND.name())){
                             characterAttributeDTO = CharacterAttributeDTO.builder()
                                     .id(AttributeGroupName.MIND.ordinal())
+                                    .name(AttributeGroupName.MIND.name())
                                     .pointValue(characterAttribute.getValue())
                                     .build();
                         }else if(characterAttribute.getAttributeGroup().getName().equalsIgnoreCase(AttributeGroupName.ENDURANCE.name())){
                             characterAttributeDTO = CharacterAttributeDTO.builder()
                                     .id(AttributeGroupName.ENDURANCE.ordinal())
+                                    .name(AttributeGroupName.ENDURANCE.name())
                                     .pointValue(characterAttribute.getValue())
                                     .build();
                         }else if(characterAttribute.getAttributeGroup().getName().equalsIgnoreCase(AttributeGroupName.STRENGTH.name())){
                             characterAttributeDTO = CharacterAttributeDTO.builder()
                                     .id(AttributeGroupName.STRENGTH.ordinal())
+                                    .name(AttributeGroupName.STRENGTH.name())
                                     .pointValue(characterAttribute.getValue())
                                     .build();
                         }else if(characterAttribute.getAttributeGroup().getName().equalsIgnoreCase(AttributeGroupName.INTELLIGENCE.name())){
                             characterAttributeDTO = CharacterAttributeDTO.builder()
                                     .id(AttributeGroupName.INTELLIGENCE.ordinal())
+                                    .name(AttributeGroupName.INTELLIGENCE.name())
                                     .pointValue(characterAttribute.getValue())
                                     .build();
                         }else if(characterAttribute.getAttributeGroup().getName().equalsIgnoreCase(AttributeGroupName.FLEXIBLE.name())){
                             characterAttributeDTO = CharacterAttributeDTO.builder()
                                     .id(AttributeGroupName.FLEXIBLE.ordinal())
+                                    .name(AttributeGroupName.FLEXIBLE.name())
                                     .pointValue(characterAttribute.getValue())
                                     .build();
                         }else if(characterAttribute.getAttributeGroup().getName().equalsIgnoreCase(AttributeGroupName.DEXTERITY.name())){
                             characterAttributeDTO = CharacterAttributeDTO.builder()
                                     .id(AttributeGroupName.DEXTERITY.ordinal())
+                                    .name(AttributeGroupName.DEXTERITY.name())
                                     .pointValue(characterAttribute.getValue())
                                     .build();
                         }
                         characterAttributeDTOs.add(characterAttributeDTO);
                     }
+
                     character1.setAttribute(characterAttributeDTOs);
-                    return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ResponseObject(HttpStatus.ACCEPTED.toString(), "Get character successfully!", null, character1));
+                    return ResponseEntity.status(HttpStatus.ACCEPTED).body(new GetCharacterResponse(HttpStatus.OK.toString(), "Get character successfully!",  character1));
                 })
-                .orElseThrow(() -> new RefreshTokenException("Game token is not in database!"));
+                .orElseThrow(() -> new GameTokenException("Game token is not in database!"));
     }
 
     @Override
-    public ResponseEntity<ResponseObject> getAttributeEffect(GameTokenForm gameTokenForm, String gameName) {
+    public ResponseEntity<GetAttributeEffectResponse> getAttributeEffect(GameTokenForm gameTokenForm, String gameName) {
         return  gameTokenProvider.findByToken(DigestUtils.sha3_256Hex(gameTokenForm.getGameToken()))
                 .map(gameTokenProvider::verifyExpiration)
                 .map(GameToken::getUser)
@@ -325,22 +330,22 @@ public class CharacterServiceImpl implements CharacterService {
                         attributeEffectDTOS.add(attributeEffectDTO);
                     }
                     if(attributeEffectDTOS != null){
-                        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject(
+                        return ResponseEntity.status(HttpStatus.OK).body(new GetAttributeEffectResponse(
                                 HttpStatus.OK.toString(),
-                                "Get effect of attribute successfully", null, attributeEffectDTOS
+                                "Get effect of attribute successfully",  attributeEffectDTOS
                         ));
                     }else{
-                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseObject(
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new GetAttributeEffectResponse(
                                 HttpStatus.BAD_REQUEST.toString(),
-                                "Dont have any effect of attribute", null, null
+                                "Dont have any effect of attribute", null
                         ));
                     }
                 })
-                .orElseThrow(() -> new RefreshTokenException("Game token is not in database!"));
+                .orElseThrow(() -> new GameTokenException("Game token is not in database!"));
     }
 
     @Override
-    public ResponseEntity<ResponseObject> getAllLevelOfGame(GameTokenForm gameTokenForm, String gameName) {
+    public ResponseEntity<GetAllLevelOfGameResponse> getAllLevelOfGame(GameTokenForm gameTokenForm, String gameName) {
         return  gameTokenProvider.findByToken(DigestUtils.sha3_256Hex(gameTokenForm.getGameToken()))
                 .map(gameTokenProvider::verifyExpiration)
                 .map(GameToken::getUser)
@@ -362,11 +367,11 @@ public class CharacterServiceImpl implements CharacterService {
                         levelDTOS.add(levelDTO);
                     }
                    return ResponseEntity.status(HttpStatus.OK).body(
-                           new ResponseObject(HttpStatus.OK.toString(),
-                                   "Get list level of game successfully",null, levelDTOS)
+                           new GetAllLevelOfGameResponse(HttpStatus.OK.toString(),
+                                   "Get list level of game successfully",levelDTOS)
                    );
                 })
-                .orElseThrow(() -> new RefreshTokenException("Game token is not in database!"));
+                .orElseThrow(() -> new GameTokenException("Game token is not in database!"));
     }
 
 }
