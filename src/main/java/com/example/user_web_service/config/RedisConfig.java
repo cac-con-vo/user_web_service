@@ -14,19 +14,17 @@ public class RedisConfig {
 
     @Bean
     public LettuceConnectionFactory redisConnectionFactory(){
-        final RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration();
-        configuration.setHostName("redisgame.redis.cache.windows.net");
-        configuration.setPort(6380);
-        configuration.setPassword(RedisPassword.of("u9yfZFd0ajzbCLbtQ0feuZqCvblvS8zcQAzCaKuAvBw="));
+    final RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration();
+    configuration.setHostName("redis-11135.c263.us-east-1-2.ec2.cloud.redislabs.com");
+    configuration.setPort(11135);
+    configuration.setPassword(RedisPassword.of("DOMIHDYb5PPRBa9wyszoZEENVo9MzNF6"));
 
-        return new LettuceConnectionFactory();
-    }
-
+    return new LettuceConnectionFactory(configuration);
+}
     @Bean
     public RedisTemplate<String, Object> redisTemplate(){
         final RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory());
-
         return redisTemplate;
     }
 }

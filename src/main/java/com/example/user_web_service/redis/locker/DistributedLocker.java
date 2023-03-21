@@ -1,7 +1,9 @@
 package com.example.user_web_service.redis.locker;
 
+import com.example.user_web_service.config.RedisConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
@@ -14,9 +16,9 @@ import java.util.function.Supplier;
 public class DistributedLocker {
     private static final Logger LOG = LoggerFactory.getLogger(DistributedLocker.class);
     private static final long DEFAULT_RETRY_TIME = 100L;
-    private final ValueOperations<String, String> valueOps;
+    private final ValueOperations<String, Object> valueOps;
 
-    public DistributedLocker(final RedisTemplate<String, String> redisTemplate) {
+    public DistributedLocker(RedisTemplate<String, Object> redisTemplate ) {
         this.valueOps = redisTemplate.opsForValue();
     }
 
