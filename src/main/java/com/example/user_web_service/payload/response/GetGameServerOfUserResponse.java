@@ -2,6 +2,7 @@ package com.example.user_web_service.payload.response;
 
 import com.example.user_web_service.dto.CharacterDTO;
 import com.example.user_web_service.dto.GameServerDTO;
+import com.example.user_web_service.dto.GameServerInfoDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,5 +17,5 @@ import java.util.List;
 public class GetGameServerOfUserResponse {
     private String status;
     private String message;
-    private List<GameServerDTO> gameServers;
+    private List<GameServerInfoDTO> gameServers;
 }

@@ -1,6 +1,7 @@
 package com.example.user_web_service.service.impl;
 
 import com.example.user_web_service.dto.GameServerDTO;
+import com.example.user_web_service.dto.GameServerInfoDTO;
 import com.example.user_web_service.dto.ResponseObject;
 import com.example.user_web_service.entity.*;
 import com.example.user_web_service.entity.Character;
@@ -32,8 +33,7 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 
 @Service
@@ -47,7 +47,7 @@ public class GameServerServiceImpl implements GameServerService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private CharacterTypeRepository characterTypeRepository;
+    private LevelProgressRepository levelProgressRepository;
     @Autowired
     private CharacterRepository characterRepository;
 
@@ -327,12 +327,44 @@ public ResponseEntity<ResponseObject> createGameServer(CreateGameServerForm crea
                             () -> new NotFoundException("Game not found")
                     );
                     List<GameServer> gameServers = gameServerRepository.findAllByUsersAndGame(userRepository.getByUsername(user.getUsername()), game);
+                    Set<GameServer> uniqueServers = new HashSet<>(gameServers);
+                    List<GameServer> uniqueServerList = new ArrayList<>(uniqueServers);
                     ModelMapper modelMapper = new ModelMapper();
-                    List<GameServerDTO> gameServerDTOS = modelMapper.map(gameServers, new TypeToken<List<GameServerDTO>>() {
-                    }.getType());
+                    List<GameServerInfoDTO> gameServerInfoDTOS = new ArrayList<>();
+                    GameServerInfoDTO gameServerDTOS = new GameServerInfoDTO();
+                    for (GameServer gameServer: uniqueServerList
+                         ) {
+                        Character character = characterRepository.findByUserAndGameServer(user, gameServer);
+                        if(character != null){
+                            LevelProgress levelProgress1 = levelProgressRepository.findFirstByCharacterOrderByLevelUpDateDesc(character).orElseThrow(
+                                    () -> new NotFoundException("Level progress not found")
+                            );
+
+                            String subStr1 = levelProgress1.getLevel().getName().substring(6);
+                            List<User> users = gameServer.getUsers();
+                            List<User> users1 = new ArrayList<>();
+                            for (User user1: users
+                                 ) {
+                                if (user1.getId() != user.getId()){
+                                    users1.add(user1);
+                                }
+                            }
+                            List<String> usernames = new ArrayList<>();
+                            for (User user1: users1
+                                 ) {
+                                usernames.add(user1.getUsername());
+                            }
+
+                            gameServerDTOS.setServerName(gameServer.getName());
+                            gameServerDTOS.setCharacterName(character.getName());
+                            gameServerDTOS.setCurrentLevel(Integer.parseInt(subStr1));
+                            gameServerDTOS.setUsernames(usernames);
+                            gameServerInfoDTOS.add(gameServerDTOS);
+                        }
+                    }
                     return ResponseEntity.status(HttpStatus.OK).body(
                             new GetGameServerOfUserResponse(HttpStatus.OK.toString(),
-                                    "Get all server of" + user.getUsername() + "successfully!", gameServerDTOS
+                                    "Get all server of" + user.getUsername() + "successfully!", gameServerInfoDTOS
                             )
                     );
                 })

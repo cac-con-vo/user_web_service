@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 public interface CharacterService {
     ResponseEntity<ResponseObject> creatCharacter(CreateCharacterForm createCharacterForm);
     ResponseEntity<GetCharacterResponse> getCharacter(GameTokenForm gameTokenForm, String gameName , String serverName);
-    ResponseEntity<GetAttributeEffectResponse> getAttributeEffect(GameTokenForm gameTokenForm, String gameName);
-    ResponseEntity<GetAllLevelOfGameResponse> getAllLevelOfGame(GameTokenForm gameTokenForm, String gameName);
+    ResponseEntity<GetAttributeEffectResponse> getAttributeEffect(String gameName);
+    ResponseEntity<GetAllLevelOfGameResponse> getAllLevelOfGame(String gameName);
 
 }

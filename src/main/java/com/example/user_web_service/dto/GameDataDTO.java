@@ -21,6 +21,6 @@ public class GameDataDTO {
     private String pnameS;
     private CharacterDTO characterS;
     private Long goldS;
-    private List<AssetDTO> weaponS;
+    private List<String> weaponS;
 }
 

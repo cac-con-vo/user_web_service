@@ -152,6 +152,7 @@ public class GameServiceImpl implements GameService {
                             character = Character.builder()
                                     .characterType(characterType)
                                     .user(user)
+                                    .name(gameData.getPnameS())
                                     .gameServer(gameServer)
                                     .basicMaxHP(gameData.getCharacterS().getBasicMaxHP())
                                     .currentHP(gameData.getCharacterS().getCurrentHP())
@@ -246,48 +247,19 @@ public class GameServiceImpl implements GameService {
                     AssetType assetType = assetTypeRepository.findByName("Weapon").orElseThrow(
                             () -> new NotFoundException("Asset type not found")
                     );
-                    List<Asset> assets = assetRepository.findAllByCharacterAndAndAssetType(character, assetType);
+                    List<Asset> assets = assetRepository.findAllByCharactersAndAssetType(character, assetType);
                     if (gameData.getWeaponS().size() > 0) {
-                        for (AssetDTO assetDTO : gameData.getWeaponS()
+                        for (String as : gameData.getWeaponS()
                         ) {
-                            String id = assetDTO.getId().substring(2);
-                            Asset asset = null;
+                            Asset asset = assetRepository.findById(as).orElseThrow(
+                                    () -> new NotFoundException("Asset not found")
+                            );
+
                             if (assets.size() == 0) {
-                                asset = Asset.builder()
-                                        .name(assetDTO.getName())
-                                        .id(Long.parseLong(id))
-                                        .character(character)
-                                        .assetType(assetType)
-                                        .cost(assetDTO.getCost())
-                                        .description(assetDTO.getDescription())
-                                        .build();
-                            } else {
-                                asset.setCost(assetDTO.getCost());
-                            }
-                            assetRepository.save(asset);
-
-                            //update asset attribute
-
-                            List<AssetAttribute> assetAttributes = assetAttributeRepository.findAllByAsset(asset);
-                            if (assetAttributes.size() == 0) {
-                                if (assetDTO.getCharacterAttribute().size() > 0) {
-                                    for (AssetAttributeDTO assetAttributeDTO : assetDTO.getCharacterAttribute()
-                                    ) {
-                                        for (AttributeGroup attributeGroup : attributeGroups
-                                        ) {
-                                            if (attributeGroup.getId() == assetAttributeDTO.getId()) {
-                                                AssetAttribute assetAttribute = AssetAttribute.builder()
-                                                        .asset(asset)
-                                                        .attributeGroup(attributeGroup)
-                                                        .value(assetAttributeDTO.getPointValue())
-                                                        .build();
-                                                assetAttributes.add(assetAttribute);
-                                                assetAttributeRepository.save(assetAttribute);
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
+                                List<Character> characters = asset.getCharacters();
+                                characters.add(character);
+                                asset.setCharacters(characters);
+                                assetRepository.save(asset);
                             }
                         }
                     }
