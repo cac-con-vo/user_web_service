@@ -464,6 +464,7 @@ public class GameServerServiceImpl implements GameServerService {
         } else if (updateServerStatusForm.getStatusName().equalsIgnoreCase(GameServerStatus.DELETED.name())) {
             gameServer.setStatus(GameServerStatus.DELETED);
         }
+        gameServer.setUpdate_at(new Date());
         gameServerRepository.save(gameServer);
         return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseObject(HttpStatus.OK.toString(), "Status of server update successfully!", null, null)
