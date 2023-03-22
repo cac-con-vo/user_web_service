@@ -65,7 +65,7 @@ public class SecurityConfig {
 						"/users/resetPassword","/api/v1/gameServer/createGameServer", "/api/v1/character/createCharacter", "/api/v1/character/getCharacter",
 						"/api/v1/character/getAttributeEffect",
 						"/api/v1/character/getAllLevelOfGame",
-						"/api/v1/game/saveGame", "/api/v1/game/loadGame")
+						"/api/v1/game/saveGame", "/api/v1/game/loadGame", "/api/v1/gameServer/getAllGameServerOfUser")
 				.permitAll();
 
 		// apis that need Admin Role to call
