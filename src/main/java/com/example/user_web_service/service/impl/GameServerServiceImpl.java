@@ -2,6 +2,7 @@ package com.example.user_web_service.service.impl;
 
 import com.example.user_web_service.dto.GameServerDTO;
 import com.example.user_web_service.dto.GameServerInfoDTO;
+import com.example.user_web_service.dto.GetGameServerDTO;
 import com.example.user_web_service.dto.ResponseObject;
 import com.example.user_web_service.entity.*;
 import com.example.user_web_service.entity.Character;
@@ -10,7 +11,9 @@ import com.example.user_web_service.exception.NotFoundException;
 import com.example.user_web_service.exception.ResourceNotFoundException;
 import com.example.user_web_service.form.CreateGameServerForm;
 import com.example.user_web_service.form.GameTokenForm;
+import com.example.user_web_service.form.UpdateServerStatusForm;
 import com.example.user_web_service.helper.Constant;
+import com.example.user_web_service.payload.response.GetAllLevelOfGameResponse;
 import com.example.user_web_service.payload.response.GetGameServerOfUserResponse;
 import com.example.user_web_service.redis.RedisValueCache;
 import com.example.user_web_service.redis.locker.DistributedLocker;
@@ -58,7 +61,7 @@ public class GameServerServiceImpl implements GameServerService {
     @Autowired
     private DistributedLocker distributedLocker;
 
-//    @Override
+    //    @Override
 //    public ResponseEntity<ResponseObject> createGameServer(GameTokenForm gameTokenForm, String serverName, String gameName, List<String> usernames) {
 //        return  gameTokenProvider.findByToken(DigestUtils.sha3_256Hex(gameTokenForm.getGameToken()))
 //                .map(gameTokenProvider::verifyExpiration)
@@ -116,39 +119,38 @@ public class GameServerServiceImpl implements GameServerService {
 //                .orElseThrow(() -> new GameTokenException("Game token is not in database!"));
 //
 //    }
-@Override
-public ResponseEntity<ResponseObject> createGameServer(CreateGameServerForm createGameServerForm) {
-    return gameTokenProvider.findByToken(DigestUtils.sha3_256Hex(createGameServerForm.getGameTokenOfRoomMaster()))
-            .map(gameTokenProvider::verifyExpiration)
-            .map(GameToken::getUser)
-            .map(user -> {
+    @Override
+    public ResponseEntity<ResponseObject> createGameServer(CreateGameServerForm createGameServerForm) {
+        return gameTokenProvider.findByToken(DigestUtils.sha3_256Hex(createGameServerForm.getGameTokenOfRoomMaster()))
+                .map(gameTokenProvider::verifyExpiration)
+                .map(GameToken::getUser)
+                .map(user -> {
 // kiểm tra xem game có tồn tại không
-                Game game = gameRepository.findByName(createGameServerForm.getGameName()).orElseThrow(
-                        () -> new NotFoundException("Game not found")
-                );
+                    Game game = gameRepository.findByName(createGameServerForm.getGameName()).orElseThrow(
+                            () -> new NotFoundException("Game not found")
+                    );
 // kiểm tra server có trùng tên không
-                this.checkDuplicate(createGameServerForm.getServerName(), game);
-                GameServer gameServer;
-                // add user tạo server vào danh sách
-                List<User> users = new ArrayList<>();
-                users.add(user);
-                if(createGameServerForm.getGameTokenOfUsers() != null){
-                    for (String gameTokenUser : createGameServerForm.getGameTokenOfUsers()
-                    ) {
-                        GameToken gameToken = gameTokenProvider.findByToken(DigestUtils.sha3_256Hex(gameTokenUser)).orElseThrow(
-                                ()-> new NotFoundException("Token of user not found!")
-                        );
-                        User user_join = userRepository.findByUsername(gameToken.getUser()
-                                .getUsername()).orElseThrow(
-                                ()-> new UsernameNotFoundException(gameToken.getUser().getUsername()+ " not found")
-                        );
-                        users.add(user_join);
+                    this.checkDuplicate(createGameServerForm.getServerName(), game);
+                    GameServer gameServer;
+                    // add user tạo server vào danh sách
+                    List<User> users = new ArrayList<>();
+                    users.add(user);
+                    if (createGameServerForm.getGameTokenOfUsers() != null) {
+                        for (String gameTokenUser : createGameServerForm.getGameTokenOfUsers()
+                        ) {
+                            GameToken gameToken = gameTokenProvider.findByToken(DigestUtils.sha3_256Hex(gameTokenUser)).orElseThrow(
+                                    () -> new NotFoundException("Token of user not found!")
+                            );
+                            User user_join = userRepository.findByUsername(gameToken.getUser()
+                                    .getUsername()).orElseThrow(
+                                    () -> new UsernameNotFoundException(gameToken.getUser().getUsername() + " not found")
+                            );
+                            users.add(user_join);
+                        }
                     }
-                }
 
 
-
-                gameServer = GameServer.builder()
+                    gameServer = GameServer.builder()
                             .name(createGameServerForm.getServerName())
                             .status(GameServerStatus.ACTIVE)
                             .create_at(Constant.getCurrentDateTime())
@@ -174,12 +176,12 @@ public ResponseEntity<ResponseObject> createGameServer(CreateGameServerForm crea
 //                        characterRepository.save(character);
 //                    }
 
-                return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseObject(
-                        HttpStatus.CREATED.toString(),
-                        "Create game server successfully!", null, gameServer));
-            })
-            .orElseThrow(() -> new GameTokenException("Game token is not in database!"));
-}
+                    return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseObject(
+                            HttpStatus.CREATED.toString(),
+                            "Create game server successfully!", null, gameServer));
+                })
+                .orElseThrow(() -> new GameTokenException("Game token is not in database!"));
+    }
 //    @Override
 //    public ResponseEntity<ResponseObject> createGameServer(CreateGameServerForm createGameServerForm) {
 //        return gameTokenProvider.findByToken(DigestUtils.sha3_256Hex(createGameServerForm.getGameTokenOfRoomMaster()))
@@ -232,21 +234,34 @@ public ResponseEntity<ResponseObject> createGameServer(CreateGameServerForm crea
 //    }
 
 
-        @Override
+    @Override
     public ResponseEntity<ResponseObject> getAllGameServer(String gameName) {
         List<GameServer> list;
+        List<GetGameServerDTO> gameServerDTOS;
         if (gameRepository.existsByName(gameName)) {
             list = gameServerRepository.findAllByGame(gameRepository.findByName(gameName).orElseThrow(
-                    ()-> new NotFoundException("Game not found")
+                    () -> new NotFoundException("Game not found")
             ));
-        }else{
-            throw new NotFoundException("Game " + gameName +" not found.");
+            gameServerDTOS = new ArrayList<>();
+            for (GameServer gameServer : list
+            ) {
+                GetGameServerDTO getGameServerDTO = GetGameServerDTO.builder()
+                        .name(gameServer.getName())
+                        .createdBy(gameServer.getCreateBy().getUsername())
+                        .createdDate(gameServer.getCreate_at())
+                        .updateDate(gameServer.getUpdate_at())
+                        .status(gameServer.getStatus().name())
+                        .build();
+                gameServerDTOS.add(getGameServerDTO);
+            }
+        } else {
+            throw new NotFoundException("Game " + gameName + " not found.");
         }
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject(
                 HttpStatus.OK.toString(),
-                "Get all server of "+ gameName + "successfully!",
+                "Get all server of " + gameName + "successfully!",
                 null,
-                list
+                gameServerDTOS
         ));
     }
 //    @Override
@@ -317,7 +332,7 @@ public ResponseEntity<ResponseObject> createGameServer(CreateGameServerForm crea
 //        ));
 //    }
 
-        @Override
+    @Override
     public ResponseEntity<GetGameServerOfUserResponse> getAllGameServerOfUser(GameTokenForm gameTokenForm, String gameName) {
         return gameTokenProvider.findByToken(DigestUtils.sha3_256Hex(gameTokenForm.getGameToken()))
                 .map(gameTokenProvider::verifyExpiration)
@@ -326,16 +341,21 @@ public ResponseEntity<ResponseObject> createGameServer(CreateGameServerForm crea
                     Game game = gameRepository.findByName(gameName).orElseThrow(
                             () -> new NotFoundException("Game not found")
                     );
-                    List<GameServer> gameServers = gameServerRepository.findAllByUsersAndGame(userRepository.getByUsername(user.getUsername()), game);
+                    List<GameServer> gameServers = gameServerRepository.findAllByUsersAndGameAndStatus(userRepository.getByUsername(user.getUsername()), game, GameServerStatus.ACTIVE);
+                    if(gameServers.size() == 0){
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                                new GetGameServerOfUserResponse(HttpStatus.NOT_FOUND.toString(),
+                                "Not found game server", null));
+                    }
                     Set<GameServer> uniqueServers = new HashSet<>(gameServers);
                     List<GameServer> uniqueServerList = new ArrayList<>(uniqueServers);
                     ModelMapper modelMapper = new ModelMapper();
                     List<GameServerInfoDTO> gameServerInfoDTOS = new ArrayList<>();
                     GameServerInfoDTO gameServerDTOS = new GameServerInfoDTO();
-                    for (GameServer gameServer: uniqueServerList
-                         ) {
+                    for (GameServer gameServer : uniqueServerList
+                    ) {
                         Character character = characterRepository.findByUserAndGameServer(user, gameServer);
-                        if(character != null){
+                        if (character != null) {
                             LevelProgress levelProgress1 = levelProgressRepository.findFirstByCharacterOrderByLevelUpDateDesc(character).orElseThrow(
                                     () -> new NotFoundException("Level progress not found")
                             );
@@ -343,15 +363,15 @@ public ResponseEntity<ResponseObject> createGameServer(CreateGameServerForm crea
                             String subStr1 = levelProgress1.getLevel().getName().substring(6);
                             List<User> users = gameServer.getUsers();
                             List<User> users1 = new ArrayList<>();
-                            for (User user1: users
-                                 ) {
-                                if (user1.getId() != user.getId()){
+                            for (User user1 : users
+                            ) {
+                                if (user1.getId() != user.getId()) {
                                     users1.add(user1);
                                 }
                             }
                             List<String> usernames = new ArrayList<>();
-                            for (User user1: users1
-                                 ) {
+                            for (User user1 : users1
+                            ) {
                                 usernames.add(user1.getUsername());
                             }
 
@@ -370,6 +390,8 @@ public ResponseEntity<ResponseObject> createGameServer(CreateGameServerForm crea
                 })
                 .orElseThrow(() -> new GameTokenException("Game token is not in database!"));
     }
+
+
 //    @Override
 //    public ResponseEntity<ResponseObject> getAllGameServerOfUser(GameTokenForm gameTokenForm, String gameName) {
 //        String cacheKey = String.format("gameServers:%s:%s", gameTokenForm.getGameToken(), gameName);
@@ -429,6 +451,24 @@ public ResponseEntity<ResponseObject> createGameServer(CreateGameServerForm crea
 //        }
 //    }
 
+    @Override
+    public ResponseEntity<ResponseObject> updateStatusGameServer(UpdateServerStatusForm updateServerStatusForm) {
+        Game game = gameRepository.findByName(updateServerStatusForm.getGameName()).orElseThrow(
+                () -> new NotFoundException("Game not found")
+        );
+        GameServer gameServer = gameServerRepository.findByNameAndGame(updateServerStatusForm.getServerName(), game).orElseThrow(
+                () -> new NotFoundException("Server not found")
+        );
+        if (updateServerStatusForm.getStatusName().equalsIgnoreCase(GameServerStatus.ACTIVE.name())) {
+            gameServer.setStatus(GameServerStatus.ACTIVE);
+        } else if (updateServerStatusForm.getStatusName().equalsIgnoreCase(GameServerStatus.DELETED.name())) {
+            gameServer.setStatus(GameServerStatus.DELETED);
+        }
+        gameServerRepository.save(gameServer);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseObject(HttpStatus.OK.toString(), "Status of server update successfully!", null, null)
+        );
+    }
 
     public boolean checkDuplicate(String name, Game game) {
         boolean checkGameServer = gameServerRepository.existsByNameAndGame(name, game);
