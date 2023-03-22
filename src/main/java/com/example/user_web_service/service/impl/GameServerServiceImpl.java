@@ -351,9 +351,9 @@ public class GameServerServiceImpl implements GameServerService {
                     List<GameServer> uniqueServerList = new ArrayList<>(uniqueServers);
                     ModelMapper modelMapper = new ModelMapper();
                     List<GameServerInfoDTO> gameServerInfoDTOS = new ArrayList<>();
-                    GameServerInfoDTO gameServerDTOS = new GameServerInfoDTO();
                     for (GameServer gameServer : uniqueServerList
                     ) {
+                        GameServerInfoDTO gameServerDTOS = new GameServerInfoDTO();
                         Character character = characterRepository.findByUserAndGameServer(user, gameServer);
                         if (character != null) {
                             LevelProgress levelProgress1 = levelProgressRepository.findFirstByCharacterOrderByLevelUpDateDesc(character).orElseThrow(
