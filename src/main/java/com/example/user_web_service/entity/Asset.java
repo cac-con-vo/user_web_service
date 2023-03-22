@@ -18,8 +18,7 @@ import java.util.List;
 
 public class Asset implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
     private String name;
 
@@ -30,10 +29,10 @@ public class Asset implements Serializable {
     private String image;
     private String description;
     private int cost;
-    @ManyToOne
+    @ManyToMany(fetch = FetchType.EAGER)
     @JsonIgnore
-    @JoinColumn(name = "character_id", nullable = false, referencedColumnName = "id")
-    private Character character;
+    @JoinTable(name = "character_asset", joinColumns = @JoinColumn(name = "asset_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "character_id", referencedColumnName = "id"))
+    private List<Character> characters;
 
     @OneToMany(mappedBy = "asset")
     private List<AssetAttribute> assetAttributes;

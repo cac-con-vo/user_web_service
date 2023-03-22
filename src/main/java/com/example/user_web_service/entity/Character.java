@@ -98,7 +98,4 @@ public class Character implements Serializable {
 
     @OneToMany(mappedBy = "character")
     private List<LevelProgress> levels;
-
-    @OneToMany(mappedBy = "character")
-    private List<Asset> assets;
 }

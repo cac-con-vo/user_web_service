@@ -3,6 +3,7 @@ package com.example.user_web_service.controller;
 import com.example.user_web_service.dto.ResponseObject;
 import com.example.user_web_service.form.CreateGameServerForm;
 import com.example.user_web_service.form.GameTokenForm;
+import com.example.user_web_service.form.UpdateServerStatusForm;
 import com.example.user_web_service.payload.response.GetGameServerOfUserResponse;
 import com.example.user_web_service.service.impl.GameServerServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -74,5 +75,11 @@ public class GameServerController {
             );
         }
         return gameServerService.getAllGameServerOfUser(gameTokenForm,gameName);
+    }
+    @PutMapping(value = "/updateStatus" , produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "For update server status")
+    public ResponseEntity<ResponseObject> changeUserStatus(@Valid @RequestBody UpdateServerStatusForm updateServerStatusForm
+    ) {
+        return gameServerService.updateStatusGameServer(updateServerStatusForm);
     }
 }

@@ -68,37 +68,31 @@ public class CharacterController {
     @GetMapping(value = "/getAttributeEffect", produces = MediaType.APPLICATION_JSON_VALUE)
     @SecurityRequirements
     public ResponseEntity<GetAttributeEffectResponse> getAttributeEffect(
-            GameTokenForm gameTokenForm,
             @Parameter(description = "Input name of game", example = "Dead of souls") @RequestParam(name = "gameName") String gameName
             ) {
-        if(gameTokenForm.getGameToken() == null || gameTokenForm.getGameToken().isBlank() ||
-                gameTokenForm.getGameToken().isEmpty()||
-                gameName == null || gameName.isEmpty() || gameName.isBlank()
+        if(gameName == null || gameName.isEmpty() || gameName.isBlank()
                ){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                     new GetAttributeEffectResponse(HttpStatus.BAD_REQUEST.toString(),
                             "Please input data.",null)
             );
         }
-        return characterService.getAttributeEffect(gameTokenForm, gameName);
+        return characterService.getAttributeEffect(gameName);
     }
 
     @Operation(summary = "For get levels of game for user")
     @GetMapping(value = "/getAllLevelOfGame", produces = MediaType.APPLICATION_JSON_VALUE)
     @SecurityRequirements
     public ResponseEntity<GetAllLevelOfGameResponse> getAllLevelOfGame(
-            GameTokenForm gameTokenForm,
             @Parameter(description = "Input name of game", example = "Dead of souls") @RequestParam(name = "gameName") String gameName
     ) {
-        if(gameTokenForm.getGameToken() == null || gameTokenForm.getGameToken().isBlank() ||
-                gameTokenForm.getGameToken().isEmpty()||
-                gameName == null || gameName.isEmpty() || gameName.isBlank()
+        if(gameName == null || gameName.isEmpty() || gameName.isBlank()
         ){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                     new GetAllLevelOfGameResponse(HttpStatus.BAD_REQUEST.toString(),
                             "Please input data.", null)
             );
         }
-        return characterService.getAllLevelOfGame(gameTokenForm, gameName.trim());
+        return characterService.getAllLevelOfGame(gameName.trim());
     }
 }

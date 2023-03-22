@@ -7,7 +7,9 @@ import com.example.user_web_service.entity.Character;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
-public interface AssetRepository extends JpaRepository<Asset, Long> {
-    List<Asset> findAllByCharacterAndAndAssetType(Character character, AssetType assetType);
+public interface AssetRepository extends JpaRepository<Asset, String> {
+    List<Asset> findAllByCharactersAndAssetType(Character character, AssetType assetType);
+
 }
