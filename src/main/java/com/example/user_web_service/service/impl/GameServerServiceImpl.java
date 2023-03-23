@@ -1,9 +1,6 @@
 package com.example.user_web_service.service.impl;
 
-import com.example.user_web_service.dto.GameServerDTO;
-import com.example.user_web_service.dto.GameServerInfoDTO;
-import com.example.user_web_service.dto.GetGameServerDTO;
-import com.example.user_web_service.dto.ResponseObject;
+import com.example.user_web_service.dto.*;
 import com.example.user_web_service.entity.*;
 import com.example.user_web_service.entity.Character;
 import com.example.user_web_service.exception.DuplicateException;
@@ -356,16 +353,20 @@ public class GameServerServiceImpl implements GameServerService {
                                     users1.add(user1);
                                 }
                             }
-                            List<String> usernames = new ArrayList<>();
+                            List<UserInGameDTO> userInGameDTOS = new ArrayList<>();
                             for (User user1 : users1
                             ) {
-                                usernames.add(user1.getUsername());
+                                UserInGameDTO userInGameDTO = UserInGameDTO.builder()
+                                        .id(user1.getId())
+                                        .username(user1.getUsername())
+                                        .build();
+                                userInGameDTOS.add(userInGameDTO);
                             }
 
                             gameServerDTOS.setServerName(gameServer.getName());
                             gameServerDTOS.setCharacterName(character.getName());
                             gameServerDTOS.setCurrentLevel(Integer.parseInt(subStr1));
-                            gameServerDTOS.setUsernames(usernames);
+                            gameServerDTOS.setUsers(userInGameDTOS);
                             gameServerInfoDTOS.add(gameServerDTOS);
                         }
                     }
