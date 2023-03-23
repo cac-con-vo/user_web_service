@@ -441,10 +441,7 @@ public class GameServerServiceImpl implements GameServerService {
 
     @Override
     public ResponseEntity<ResponseObject> updateStatusGameServer(UpdateServerStatusForm updateServerStatusForm) {
-        Game game = gameRepository.findByName(updateServerStatusForm.getGameName()).orElseThrow(
-                () -> new NotFoundException("Game not found")
-        );
-        GameServer gameServer = gameServerRepository.findByNameAndGame(updateServerStatusForm.getServerName(), game).orElseThrow(
+        GameServer gameServer = gameServerRepository.findById(updateServerStatusForm.getId()).orElseThrow(
                 () -> new NotFoundException("Server not found")
         );
         if (updateServerStatusForm.getStatusName().equalsIgnoreCase(GameServerStatus.ACTIVE.name())) {
