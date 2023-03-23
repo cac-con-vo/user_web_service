@@ -12,6 +12,7 @@ import java.util.Date;
 @Builder
 @Getter
 public class GetGameServerDTO {
+    private Long id;
     private String name;
     private String createdBy;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateTimeUtils.DATE_FORMAT)
