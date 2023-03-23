@@ -278,7 +278,7 @@ public class AuthServiceImpl implements AuthService {
                                 blackAccessTokenServiceImp.save(blackAccessToken);
 
                                 //For cache
-                                this.clearRefreshTokenCache(gameToken);
+                                this.clearGameTokenCache(gameToken);
                                 this.clearUserDetailsCache(jwtProvider.getUsernameFromToken(accessTokenForm.getAccessToken()));
                             }
                         });
@@ -374,6 +374,14 @@ public class AuthServiceImpl implements AuthService {
             logger.info("Clear refresh token " + refreshToken + " from cache");
         } else {
             logger.error("Fail clear refresh token " + refreshToken + " from cache");
+        }
+    }
+    private void clearGameTokenCache(String gameToken) {
+        boolean result = cacheManager.getCache("gameToken").evictIfPresent(gameToken);
+        if (result) {
+            logger.info("Clear game token " + gameToken + " from cache");
+        } else {
+            logger.error("Fail clear game token " + gameToken + " from cache");
         }
     }
 
