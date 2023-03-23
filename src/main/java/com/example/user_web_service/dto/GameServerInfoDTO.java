@@ -13,5 +13,5 @@ public class GameServerInfoDTO {
     private String serverName;
     private String characterName;
     private int currentLevel;
-    private List<String> usernames;
+    private List<UserInGameDTO> users;
 }
