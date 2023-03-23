@@ -26,15 +26,15 @@ import java.text.ParseException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/v1/users")
 public class UserController extends BaseController {
 
     @Autowired
     UserService userService;
     @Autowired
     private UserRepository userRepository;
-
-    @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "For get list of users")
+    @GetMapping(value = "/listting", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAll() {
         List<User> allUser = userService.getAllUser();
         ModelMapper modelMapper = new ModelMapper();
@@ -47,18 +47,18 @@ public class UserController extends BaseController {
 
         return new ResponseEntity<>(responseForm, HttpStatus.OK);
     }
-
+    @Operation(summary = "For resetting password for users")
     @PostMapping(value = "/resetPassword/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> resetPassword(@PathVariable("id") Long id) {
 
         return userService.resetPassword(id);
     }
-
+    @Operation(summary = "For forgetting password of users")
     @PostMapping(value = "/forget-password", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> forgetPassword(@RequestBody String email) {
         return userService.anaylyzeForgetPassword(email);
     }
-
+    @Operation(summary = "For retyping password of users")
     @PostMapping(value = "/retype-password", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> retypePassword(@RequestBody RetypePasswordForm retypePasswordForm) {
         return userService.anaylyzeRetypePassword(retypePasswordForm);
@@ -68,7 +68,7 @@ public class UserController extends BaseController {
 //    public ResponseEntity<?> login(@RequestBody LoginForm loginForm) {
 //        return userService.authenticateUser(loginForm);
 //    }
-
+    @Operation(summary = "For getting prolife of user")
     @GetMapping(value = "/profile", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> profile() {
         Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -83,12 +83,12 @@ public class UserController extends BaseController {
         responseForm.setResult(true);
         return new ResponseEntity<>(responseForm, HttpStatus.OK);
     }
-
+    @Operation(summary = "For updating information of user")
     @PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> update(@RequestBody UpdateUserForm updateUserForm) throws ParseException {
         return userService.updateUser(updateUserForm);
     }
-
+    @Operation(summary = "For changing password of user")
     @PutMapping(value = "/change-password", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> changePassword(@RequestBody UpdatePasswordForm updatePasswordForm) {
         return userService.changePassword(updatePasswordForm.getOldPassword(), updatePasswordForm.getNewPassword());

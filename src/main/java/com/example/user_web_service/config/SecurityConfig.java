@@ -61,7 +61,7 @@ public class SecurityConfig {
 
 		//Accept not need authenticate
 		http.authorizeRequests().antMatchers("/swagger-ui/**", "/v3/api-docs/**","/api/v1/auth/login", "/api/v1/auth/accessToken",
-				"/error", "/v2/api-docs/**", "/api/v1/notification/**", "/users/signUp","/users/change-password","/api/v1/auth/loginGame", "/users/profile", "/users/update",
+				"/error", "/v2/api-docs/**", "/api/v1/users/signUp","/api/v1/users/change-password","/api/v1/auth/loginGame", "/api/v1/users/profile", "/api/v1/users/update",
 						"/users/resetPassword","/api/v1/gameServer/createGameServer", "/api/v1/character/createCharacter", "/api/v1/character/getCharacter",
 						"/api/v1/character/getAttributeEffect",
 						"/api/v1/character/getAllLevelOfGame",
@@ -70,11 +70,11 @@ public class SecurityConfig {
 
 		// apis that need Admin Role to call
 		http.authorizeRequests()
-				.antMatchers( "/users/list","/api/v1/gameServer/getAllGameServer", "/api/v1/gameServer/updateStatus").hasAnyAuthority(Constant.ADMIN_ROLE);
+				.antMatchers( "/api/v1/users/list","/api/v1/gameServer/getAllGameServer", "/api/v1/gameServer/updateStatus").hasAnyAuthority(Constant.ADMIN_ROLE);
 
 		// api that need User or Admin role to call
 		http.authorizeRequests()
-				.antMatchers( "/files/**")
+				.antMatchers( "/api/v1/files/**")
 				.hasAnyAuthority(Constant.USER_ROLE, Constant.ADMIN_ROLE)
 				;
 
