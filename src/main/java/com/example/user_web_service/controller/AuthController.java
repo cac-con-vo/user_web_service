@@ -61,12 +61,12 @@ public class AuthController {
     }
     @PostMapping(value = "/auth/loginGame", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "For login game")
-    public ResponseEntity<LoginGameResponse> loginGame(@RequestBody AccessTokenForm accessTokenForm) {
+    public ResponseEntity<LoginGameResponse> loginGame(HttpServletRequest request,@RequestBody AccessTokenForm accessTokenForm) {
         if(accessTokenForm.getAccessToken() == null || accessTokenForm.getAccessToken()
                 .isEmpty() || accessTokenForm.getAccessToken().isBlank()){
-            return new ResponseEntity<LoginGameResponse>(new LoginGameResponse(HttpStatus.BAD_REQUEST.toString(), "Please input refresh token",  null, null), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<LoginGameResponse>(new LoginGameResponse(HttpStatus.BAD_REQUEST.toString(), "Please input refresh token",  null, null, null), HttpStatus.BAD_REQUEST);
         }
-        return authService.validateAccessTokenForLoginGame(accessTokenForm);
+        return authService.validateAccessTokenForLoginGame(request, accessTokenForm);
     }
 
 

@@ -38,8 +38,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.print.DocFlavor;
 import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.time.Instant;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -210,7 +215,7 @@ public class AuthServiceImpl implements AuthService {
 //    }
 
     @Override
-    public ResponseEntity<LoginGameResponse> validateAccessTokenForLoginGame(AccessTokenForm accessTokenForm) {
+    public ResponseEntity<LoginGameResponse> validateAccessTokenForLoginGame(HttpServletRequest request, AccessTokenForm accessTokenForm) {
 
 
         String username = jwtProvider.getUsernameFromToken(accessTokenForm.getAccessToken());
@@ -225,21 +230,75 @@ public class AuthServiceImpl implements AuthService {
                 if (cachedValue instanceof UserDetails) {
                     UserDetails userDetails = (UserDetails) cachedValue;
                     String userDetailsStr = userDetails.getUsername();
+
+
+
+
                     if (userDetailsStr.equalsIgnoreCase(user.getUsername())) {
                         // Access token is valid
                         String gameToken = gameTokenProvider.createGameToken(username).getToken();
+                        //kết nối socket
+                        CompletableFuture.runAsync(() -> {
+                            try {
+                                // Lấy địa chỉ IP và cổng của client từ request HTTP
+                                String clientAddress = request.getRemoteAddr();
+                                int clientPort = request.getRemotePort();
+
+                                // Tạo kết nối socket tới client
+                                Socket socket = new Socket(clientAddress, clientPort);
+
+                                // Tạo luồng vào và ra để đọc và ghi dữ liệu
+                                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+
+                                // Gửi tin nhắn đến client
+                                out.println("Hello client, this is the server.");
+
+                                // Đọc dữ liệu từ client
+                                String inputLine;
+                                while ((inputLine = in.readLine()) != null) {
+                                    System.out.println("Client says: " + inputLine);
+                                }
+
+                                // Đóng kết nối với client
+                                in.close();
+                                out.close();
+                                socket.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            } finally {
+                                //delete refresh token
+                                gameTokenProvider.deleteByToken(gameToken);
+                                //set access token into black list to prevent reused.
+                                Instant expiredTime = jwtProvider.getAccessTokenExpiredTime(accessTokenForm.getAccessToken()).toInstant();
+                                BlackAccessToken blackAccessToken = BlackAccessToken.builder()
+                                        .accessToken(DigestUtils.sha3_256Hex(accessTokenForm.getAccessToken()))
+                                        .expiryDate(expiredTime)
+                                        .build();
+                                blackAccessTokenServiceImp.save(blackAccessToken);
+
+                                //For cache
+                                this.clearRefreshTokenCache(gameToken);
+                                this.clearUserDetailsCache(jwtProvider.getUsernameFromToken(accessTokenForm.getAccessToken()));
+                            }
+                        });
+
+
+
                         return ResponseEntity.status(HttpStatus.OK).body(new LoginGameResponse(
                                 HttpStatus.OK.toString(),
                                 "Get game token successfully.",
                                 gameToken,
+                                user.getId(),
                                 user.getFirstName() + " " + user.getLastName()
                         ));
+
                     } else {
                         // Access token is invalid
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginGameResponse(
                                 HttpStatus.BAD_REQUEST.toString(),
                                 "Access token is not valid",
-                                null, null
+                                null, null, null
                         ));
                     }
                 }
@@ -247,7 +306,7 @@ public class AuthServiceImpl implements AuthService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginGameResponse(
                     HttpStatus.BAD_REQUEST.toString(),
                     "You do not login",
-                    null, null
+                    null, null, null
             ));
         });
 
@@ -258,7 +317,7 @@ public class AuthServiceImpl implements AuthService {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new LoginGameResponse(
                     HttpStatus.INTERNAL_SERVER_ERROR.toString(),
                     "Failed to acquire lock",
-                    null, null
+                    null, null, null
             ));
         }
     }

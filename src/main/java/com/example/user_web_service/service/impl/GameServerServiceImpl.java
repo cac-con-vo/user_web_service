@@ -160,21 +160,7 @@ public class GameServerServiceImpl implements GameServerService {
                             .build();
 
                     gameServerRepository.save(gameServer);
-//                    //tao cac nhan vat cho cac user tham gia vao game server voi trang thai INACTIVE
-//                    CharacterType characterType = characterTypeRepository.findByName("Hunter").orElseThrow(
-//                            ()-> new ResourceNotFoundException("Hunter", null ," not found")
-//                    );
-//                    for (User user_join: gameServer.getUsers()
-//                    ) {
-//                        Character character = Character.builder()
-//                                .gameServer(gameServer)
-//                                .user(user_join)
-//                                .position(new CharacterPosition(0, 0 ,0))
-//                                .characterType(characterType)
-//                                .status(CharacterStatus.INACTIVE)
-//                                .build();
-//                        characterRepository.save(character);
-//                    }
+
 
                     return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseObject(
                             HttpStatus.CREATED.toString(),
@@ -246,6 +232,7 @@ public class GameServerServiceImpl implements GameServerService {
             for (GameServer gameServer : list
             ) {
                 GetGameServerDTO getGameServerDTO = GetGameServerDTO.builder()
+                        .id(gameServer.getId())
                         .name(gameServer.getName())
                         .createdBy(gameServer.getCreateBy().getUsername())
                         .createdDate(gameServer.getCreate_at())
