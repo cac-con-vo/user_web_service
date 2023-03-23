@@ -17,6 +17,7 @@ public interface GameServerRepository extends JpaRepository<GameServer, Long> {
 
     List<GameServer> findAllByUsersAndGameAndStatus(User user, Game game, GameServerStatus gameServerStatus);
     List<GameServer> findAllByGame(Game game);
+
     boolean existsByUsers(User user);
 
 }
