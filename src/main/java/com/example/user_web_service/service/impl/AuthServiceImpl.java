@@ -1,5 +1,6 @@
 package com.example.user_web_service.service.impl;
 
+import com.example.user_web_service.config.RedisConfig;
 import com.example.user_web_service.dto.PrincipalDTO;
 import com.example.user_web_service.dto.ResponseObject;
 import com.example.user_web_service.entity.*;
@@ -18,6 +19,7 @@ import com.example.user_web_service.service.AuthService;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.modelmapper.ModelMapper;
+import org.redisson.api.RLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +47,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -70,6 +73,9 @@ public class AuthServiceImpl implements AuthService {
     private DistributedLocker distributedLocker;
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RedisConfig redissonClient;
 
 
     public AuthServiceImpl(ModelMapper mapper) {
@@ -112,42 +118,7 @@ public class AuthServiceImpl implements AuthService {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseObject(HttpStatus.UNAUTHORIZED.toString(), "Invalid email or password. Please try again.", null, null));
         }
     }
-//    @Override
-//    public ResponseEntity<ResponseObject> login(LoginForm loginForm) {
-//        ResponseEntity<ResponseObject> responseEntity = this.validateLoginForm(loginForm);
-//        if (responseEntity != null) {
-//            return responseEntity;
-//        }
-//
-//        LockExecutionResult<ResponseEntity<ResponseObject>> lockResult = distributedLocker.lock("login-form", 30, 10, () -> {
-//            try {
-//                Authentication authentication = authenticationManager.authenticate(
-//                        new UsernamePasswordAuthenticationToken(loginForm.getUsername(), loginForm.getPassword())
-//                );
-//                SecurityContextHolder.getContext().setAuthentication(authentication);
-//                Principal userPrinciple = (Principal) authentication.getPrincipal();
-//                String accessToken = jwtProvider.createToken(userPrinciple);
-//                String refreshToken = refreshTokenProvider.createRefreshToken(loginForm.getUsername()).getToken();
-//                return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ResponseObject(HttpStatus.ACCEPTED.toString(), "Login success!", null, new JwtResponse(accessToken, refreshToken)));
-//            } catch (AuthenticationException e) {
-//                if (e instanceof DisabledException) {
-//                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseObject(HttpStatus.UNAUTHORIZED.toString(), "Account has been locked. Please contact " + companyEmail + " for more information", null, null));
-//                }
-//                if(e instanceof AccountExpiredException){
-//                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseObject(HttpStatus.UNAUTHORIZED.toString(), "Account has expired. Please contact " + companyEmail + " for more information", null, null));
-//                }
-//                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseObject(HttpStatus.UNAUTHORIZED.toString(), "Invalid username or password", null, null));
-//            }
-//        });
-//
-//        if (!lockResult.isLockAcquired()) {
-//            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ResponseObject(HttpStatus.CONFLICT.toString(), "Failed to acquire lock for login form", null, null));
-//        } else if (lockResult.hasException()) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseObject(HttpStatus.INTERNAL_SERVER_ERROR.toString(), "An error occurred while trying to acquire lock for login form", null, null));
-//        } else {
-//            return lockResult.getResultIfLockAcquired();
-//        }
-//    }
+
 
     @Override
     public ResponseEntity<ResponseObject> validateAccessToken() {
@@ -155,172 +126,100 @@ public class AuthServiceImpl implements AuthService {
         PrincipalDTO principalDTO = mapper.map(userPrinciple, PrincipalDTO.class);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ResponseObject(HttpStatus.ACCEPTED.toString(), "Validate access token success!", null, principalDTO));
     }
-//    @Override
-//    public ResponseEntity<ResponseObject> validateAccessToken() {
-//        String lockKey = "validateAccessTokenLock";
-//        LockExecutionResult<ResponseEntity<ResponseObject>> lockResult = distributedLocker.lock(lockKey, 60, 10, () -> {
-//            // Code to execute inside the lock
-//            Principal userPrinciple = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//            PrincipalDTO principalDTO = mapper.map(userPrinciple, PrincipalDTO.class);
-//            return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ResponseObject(HttpStatus.ACCEPTED.toString(), "Validate access token success!", null, principalDTO));
-//        });
-//
-//        if (lockResult.isLockAcquired()) {
-//            // Lock was acquired successfully
-//            return lockResult.getResultIfLockAcquired();
-//        } else {
-//            // Lock was not acquired
-//            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ResponseObject(HttpStatus.CONFLICT.toString(), "Cannot validate access token. Another instance of the method is already running.", null, null));
-//        }
-//    }
+
+
 
 //    @Override
-//    public ResponseEntity<LoginGameResponse> validateAccessTokenForLoginGame(AccessTokenForm accessTokenForm) {
-//        GameTokenResponse gameTokenResponse = null;
+//    public ResponseEntity<LoginGameResponse> validateAccessTokenForLoginGame(HttpServletRequest request, AccessTokenForm accessTokenForm) {
+//
+//
 //        String username = jwtProvider.getUsernameFromToken(accessTokenForm.getAccessToken());
 //        User user = userRepository.findByUsername(username).orElseThrow(
 //                ()-> new UserNotFoundException(username, "User not found")
 //        );
-//        Cache userDetailsCache = cacheManager.getCache("userDetails");
-//        Cache.ValueWrapper valueWrapper = userDetailsCache.get(username);
-//        if (valueWrapper != null) {
-//            Object cachedValue = valueWrapper.get();
-//            if (cachedValue instanceof UserDetails) {
-//                UserDetails userDetails = (UserDetails) cachedValue;
-//                String userDetailsStr = userDetails.getUsername();
-//                if (userDetailsStr .equalsIgnoreCase(user.getUsername())) {
-//                    // Access token is valid
-//                    String gameToken = gameTokenProvider.createGameToken(username).getToken();
-//                    return ResponseEntity.status(HttpStatus.OK).body(new LoginGameResponse(
-//                            HttpStatus.OK.toString(),
-//                            "Get game token successfully.",
-//                            gameToken,
-//                            user.getFirstName() + " " + user.getLastName()
-//                    ));
-//                } else {
-//                    // Access token is invalid
-//                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginGameResponse(
-//                            HttpStatus.BAD_REQUEST.toString(),
-//                            "Access token is not valid",
-//                            null, null
-//                    ));
+//            Cache userDetailsCache = cacheManager.getCache("userDetails");
+//            Cache.ValueWrapper valueWrapper = userDetailsCache.get(username);
+//            if (valueWrapper != null) {
+//                Object cachedValue = valueWrapper.get();
+//                if (cachedValue instanceof UserDetails) {
+//                    UserDetails userDetails = (UserDetails) cachedValue;
+//                    String userDetailsStr = userDetails.getUsername();
+//
+//                    if (userDetailsStr.equalsIgnoreCase(user.getUsername())) {
+//                        // Access token is valid
+//                        String gameToken = gameTokenProvider.createGameToken(username).getToken();
+//                        //kết nối socket
+//                        CompletableFuture.runAsync(() -> {
+//                            try {
+//                                // Lấy địa chỉ IP và cổng của client từ request HTTP
+//                                String clientAddress = request.getRemoteAddr();
+//                                int clientPort = request.getRemotePort();
+//
+//                                // Tạo kết nối socket tới client
+//                                Socket socket = new Socket(clientAddress, clientPort);
+//
+//                                // Tạo luồng vào và ra để đọc và ghi dữ liệu
+//                                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+//                                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+//
+//                                // Gửi tin nhắn đến client
+//                                out.println("Hello client, this is the server.");
+//
+//                                // Đọc dữ liệu từ client
+//                                String inputLine;
+//                                while ((inputLine = in.readLine()) != null) {
+//                                    System.out.println("Client says: " + inputLine);
+//                                }
+//
+//                                // Đóng kết nối với client
+//                                in.close();
+//                                out.close();
+//                                socket.close();
+//                            } catch (IOException e) {
+//                                e.printStackTrace();
+//                            } finally {
+//                                //delete refresh token
+//                                gameTokenProvider.deleteByToken(gameToken);
+//                                //set access token into black list to prevent reused.
+//                                Instant expiredTime = jwtProvider.getAccessTokenExpiredTime(accessTokenForm.getAccessToken()).toInstant();
+//                                BlackAccessToken blackAccessToken = BlackAccessToken.builder()
+//                                        .accessToken(DigestUtils.sha3_256Hex(accessTokenForm.getAccessToken()))
+//                                        .expiryDate(expiredTime)
+//                                        .build();
+//                                blackAccessTokenServiceImp.save(blackAccessToken);
+//
+//                                //For cache
+//                                this.clearGameTokenCache(gameToken);
+//                                this.clearUserDetailsCache(jwtProvider.getUsernameFromToken(accessTokenForm.getAccessToken()));
+//                            }
+//                        });
+//
+//
+//
+//                        return ResponseEntity.status(HttpStatus.OK).body(new LoginGameResponse(
+//                                HttpStatus.OK.toString(),
+//                                "Get game token successfully.",
+//                                gameToken,
+//                                user.getId(),
+//                                user.getFirstName() + " " + user.getLastName()
+//                        ));
+//
+//                    } else {
+//                        // Access token is invalid
+//                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginGameResponse(
+//                                HttpStatus.BAD_REQUEST.toString(),
+//                                "Access token is not valid",
+//                                null, null, null
+//                        ));
+//                    }
 //                }
 //            }
-//        }
-//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginGameResponse(
-//                HttpStatus.BAD_REQUEST.toString(),
-//                "You do not login",
-//                null, null
-//        ));
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginGameResponse(
+//                    HttpStatus.BAD_REQUEST.toString(),
+//                    "You do not login",
+//                    null, null, null
+//            ));
 //    }
-
-    @Override
-    public ResponseEntity<LoginGameResponse> validateAccessTokenForLoginGame(HttpServletRequest request, AccessTokenForm accessTokenForm) {
-
-
-        String username = jwtProvider.getUsernameFromToken(accessTokenForm.getAccessToken());
-        User user = userRepository.findByUsername(username).orElseThrow(
-                ()-> new UserNotFoundException(username, "User not found")
-        );
-        LockExecutionResult<ResponseEntity<LoginGameResponse>> lockResult = distributedLocker.lock(username, 10, 30, () -> {
-            Cache userDetailsCache = cacheManager.getCache("userDetails");
-            Cache.ValueWrapper valueWrapper = userDetailsCache.get(username);
-            if (valueWrapper != null) {
-                Object cachedValue = valueWrapper.get();
-                if (cachedValue instanceof UserDetails) {
-                    UserDetails userDetails = (UserDetails) cachedValue;
-                    String userDetailsStr = userDetails.getUsername();
-
-
-
-
-                    if (userDetailsStr.equalsIgnoreCase(user.getUsername())) {
-                        // Access token is valid
-                        String gameToken = gameTokenProvider.createGameToken(username).getToken();
-                        //kết nối socket
-                        CompletableFuture.runAsync(() -> {
-                            try {
-                                // Lấy địa chỉ IP và cổng của client từ request HTTP
-                                String clientAddress = request.getRemoteAddr();
-                                int clientPort = request.getRemotePort();
-
-                                // Tạo kết nối socket tới client
-                                Socket socket = new Socket(clientAddress, clientPort);
-
-                                // Tạo luồng vào và ra để đọc và ghi dữ liệu
-                                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-
-                                // Gửi tin nhắn đến client
-                                out.println("Hello client, this is the server.");
-
-                                // Đọc dữ liệu từ client
-                                String inputLine;
-                                while ((inputLine = in.readLine()) != null) {
-                                    System.out.println("Client says: " + inputLine);
-                                }
-
-                                // Đóng kết nối với client
-                                in.close();
-                                out.close();
-                                socket.close();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            } finally {
-                                //delete refresh token
-                                gameTokenProvider.deleteByToken(gameToken);
-                                //set access token into black list to prevent reused.
-                                Instant expiredTime = jwtProvider.getAccessTokenExpiredTime(accessTokenForm.getAccessToken()).toInstant();
-                                BlackAccessToken blackAccessToken = BlackAccessToken.builder()
-                                        .accessToken(DigestUtils.sha3_256Hex(accessTokenForm.getAccessToken()))
-                                        .expiryDate(expiredTime)
-                                        .build();
-                                blackAccessTokenServiceImp.save(blackAccessToken);
-
-                                //For cache
-                                this.clearGameTokenCache(gameToken);
-                                this.clearUserDetailsCache(jwtProvider.getUsernameFromToken(accessTokenForm.getAccessToken()));
-                            }
-                        });
-
-
-
-                        return ResponseEntity.status(HttpStatus.OK).body(new LoginGameResponse(
-                                HttpStatus.OK.toString(),
-                                "Get game token successfully.",
-                                gameToken,
-                                user.getId(),
-                                user.getFirstName() + " " + user.getLastName()
-                        ));
-
-                    } else {
-                        // Access token is invalid
-                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginGameResponse(
-                                HttpStatus.BAD_REQUEST.toString(),
-                                "Access token is not valid",
-                                null, null, null
-                        ));
-                    }
-                }
-            }
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginGameResponse(
-                    HttpStatus.BAD_REQUEST.toString(),
-                    "You do not login",
-                    null, null, null
-            ));
-        });
-
-        if (lockResult.isLockAcquired()) {
-            return lockResult.getResultIfLockAcquired();
-        } else {
-            logger.error("Failed to acquire lock for user '{}'", username);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new LoginGameResponse(
-                    HttpStatus.INTERNAL_SERVER_ERROR.toString(),
-                    "Failed to acquire lock",
-                    null, null, null
-            ));
-        }
-    }
 
 
     @Override
@@ -346,6 +245,115 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    public ResponseEntity<LoginGameResponse> validateAccessTokenForLoginGame(HttpServletRequest request, AccessTokenForm accessTokenForm) {
+        String username = jwtProvider.getUsernameFromToken(accessTokenForm.getAccessToken());
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username, "User not found"));
+
+        RLock lock = redissonClient.redissonClient().getLock(username);
+        try {
+            if (lock.tryLock(10, 30, TimeUnit.SECONDS)) {
+                Cache userDetailsCache = cacheManager.getCache("userDetails");
+                Cache.ValueWrapper valueWrapper = userDetailsCache.get(username);
+                if (valueWrapper != null) {
+                    Object cachedValue = valueWrapper.get();
+                    if (cachedValue instanceof UserDetails) {
+                        UserDetails userDetails = (UserDetails) cachedValue;
+                        String userDetailsStr = userDetails.getUsername();
+
+                        if (userDetailsStr.equalsIgnoreCase(user.getUsername())) {
+                            // Access token is valid
+                            String gameToken = gameTokenProvider.createGameToken(username).getToken();
+                            // Kết nối socket
+                            CompletableFuture.runAsync(() -> {
+                                try {
+                                    // Lấy địa chỉ IP và cổng của client từ request HTTP
+                                    String clientAddress = request.getRemoteAddr();
+                                    int clientPort = request.getRemotePort();
+
+                                    // Tạo kết nối socket tới client
+                                    Socket socket = new Socket(clientAddress, clientPort);
+
+                                    // Tạo luồng vào và ra để đọc và ghi dữ liệu
+                                    BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                                    PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+
+                                    // Gửi tin nhắn đến client
+                                    out.println("Hello client, this is the server.");
+
+                                    // Đọc dữ liệu từ client
+                                    String inputLine;
+                                    while ((inputLine = in.readLine()) != null) {
+                                        System.out.println("Client says: " + inputLine);
+                                    }
+
+                                    // Đóng kết nối với client
+                                    in.close();
+                                    out.close();
+                                    socket.close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                } finally {
+                                    // Xóa refresh token
+                                    gameTokenProvider.deleteByToken(gameToken);
+
+                                    // Đưa access token vào danh sách đen để ngăn chặn tái sử dụng.
+                                    Instant expiredTime = jwtProvider.getAccessTokenExpiredTime(accessTokenForm.getAccessToken()).toInstant();
+                                    BlackAccessToken blackAccessToken = BlackAccessToken.builder()
+                                            .accessToken(DigestUtils.sha3_256Hex(accessTokenForm.getAccessToken()))
+                                            .expiryDate(expiredTime)
+                                            .build();
+                                    blackAccessTokenServiceImp.save(blackAccessToken);
+
+                                    // Xóa cache game token và user details.
+                                    this.clearGameTokenCache(gameToken);
+                                    this.clearUserDetailsCache(jwtProvider.getUsernameFromToken(accessTokenForm.getAccessToken()));
+                                }
+                            });
+
+                            return ResponseEntity.status(HttpStatus.OK).body(new LoginGameResponse(
+                                    HttpStatus.OK.toString(),
+                                    "Get game token successfully.",
+                                    gameToken,
+                                    user.getId(),
+                                    user.getFirstName() + " " + user.getLastName()
+                            ));
+                        } else {
+                            // Access token is invalid
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginGameResponse(
+                                    HttpStatus.BAD_REQUEST.toString(),
+                                    "Access token is not valid",
+                                    null, null, null
+                            ));
+                        }
+                    }
+                }
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginGameResponse(
+                        HttpStatus.BAD_REQUEST.toString(),
+                        "You do not login",
+                        null, null, null
+                ));
+            } else {
+                logger.error("Failed to acquire lock for user '{}'", username);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new LoginGameResponse(
+                        HttpStatus.INTERNAL_SERVER_ERROR.toString(),
+                        "Failed to acquire lock",
+                        null, null, null
+                ));
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            logger.error("Interrupted while trying to acquire lock for user '{}'", username, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new LoginGameResponse(
+                    HttpStatus.INTERNAL_SERVER_ERROR.toString(),
+                    "Interrupted while trying to acquire lock",
+                    null, null, null
+            ));
+        } finally {
+            lock.unlock();
+        }
+    }
+
+                @Override
     public ResponseEntity<ResponseObject> logout(HttpServletRequest request, LogoutForm logoutForm) {
         //delete refresh token
         refreshTokenProvider.deleteByToken(logoutForm.getRefreshToken());
