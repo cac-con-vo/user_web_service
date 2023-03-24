@@ -9,4 +9,6 @@ import org.springframework.http.ResponseEntity;
 public interface GameService {
     ResponseEntity<ResponseObject> saveGame(SaveGameForm saveGameForm);
     ResponseEntity<LoadGameResponse> loadGame(LoadGameForm loadGameForm);
+
+    ResponseEntity<ResponseObject> getAllGame();
 }

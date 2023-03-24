@@ -346,4 +346,19 @@ public class GameServiceImpl implements GameService {
                 })
                 .orElseThrow(() -> new GameTokenException("Game token is not in database!"));
     }
+
+    @Override
+    public ResponseEntity<ResponseObject> getAllGame() {
+        List<Game> games = gameRepository.findAll();
+        if(games.size() > 0){
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject(HttpStatus.OK.toString(),
+                            "Get all game successfully", null, games)
+            );
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                new ResponseObject(HttpStatus.NOT_FOUND.toString(),
+                        "Get all game successfully", null, games)
+        );
+    }
 }

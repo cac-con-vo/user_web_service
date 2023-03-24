@@ -4,6 +4,7 @@ import com.example.user_web_service.dto.ResponseObject;
 import com.example.user_web_service.form.LoadGameForm;
 import com.example.user_web_service.form.LoginForm;
 import com.example.user_web_service.form.SaveGameForm;
+import com.example.user_web_service.form.UpdateServerStatusForm;
 import com.example.user_web_service.payload.response.LoadGameResponse;
 import com.example.user_web_service.service.impl.GameServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,5 +47,10 @@ public class GameController {
             return new ResponseEntity<LoadGameResponse>(new LoadGameResponse(HttpStatus.BAD_REQUEST.toString(), "Please input data", null, null), HttpStatus.BAD_REQUEST);
         }
         return gameService.loadGame(loadGameForm);
+    }
+    @GetMapping(value = "/getAllGame" , produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "For get all game")
+    public ResponseEntity<ResponseObject> changeUserStatus() {
+        return gameService.getAllGame();
     }
 }

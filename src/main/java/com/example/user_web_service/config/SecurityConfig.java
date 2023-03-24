@@ -70,7 +70,7 @@ public class SecurityConfig {
 
 		// apis that need Admin Role to call
 		http.authorizeRequests()
-				.antMatchers( "/api/v1/users/list","/api/v1/gameServer/getAllGameServer", "/api/v1/gameServer/updateStatus").hasAnyAuthority(Constant.ADMIN_ROLE);
+				.antMatchers( "/api/v1/users/list","/api/v1/gameServer/getAllGameServer", "/api/v1/gameServer/updateStatus", "/api/v1/game/getAllGame").hasAnyAuthority(Constant.ADMIN_ROLE);
 
 		// api that need User or Admin role to call
 		http.authorizeRequests()
@@ -84,7 +84,6 @@ public class SecurityConfig {
 
 		).hasAnyAuthority(Constant.USER_ROLE).anyRequest().authenticated();
 
-		//http.authorizeRequests().anyRequest().authenticated();
 		http.addFilterBefore(jwtTokenFilter(), BasicAuthenticationFilter.class);
 
 		return http.build();
