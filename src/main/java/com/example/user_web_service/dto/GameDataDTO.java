@@ -14,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GameDataDTO {
+    private int playGameTimeSeconds;
     private float x;
     private float y;
     private float z;
