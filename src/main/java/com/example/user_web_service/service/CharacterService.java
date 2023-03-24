@@ -13,5 +13,5 @@ public interface CharacterService {
     ResponseEntity<GetCharacterResponse> getCharacter(GameTokenForm gameTokenForm, String gameName , String serverName);
     ResponseEntity<GetAttributeEffectResponse> getAttributeEffect(String gameName);
     ResponseEntity<GetAllLevelOfGameResponse> getAllLevelOfGame(String gameName);
-
+    ResponseEntity<GetCharacterResponse> getCharacterInfo(String gameName , String serverName);
 }
