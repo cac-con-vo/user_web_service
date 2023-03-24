@@ -13,6 +13,7 @@ import com.example.user_web_service.payload.response.GetCharacterResponse;
 import com.example.user_web_service.repository.*;
 import com.example.user_web_service.security.jwt.GameTokenException;
 import com.example.user_web_service.security.jwt.GameTokenProvider;
+import com.example.user_web_service.security.userprincipal.Principal;
 import com.example.user_web_service.service.CharacterService;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.modelmapper.ModelMapper;
@@ -360,6 +361,103 @@ public class CharacterServiceImpl implements CharacterService {
                 new GetAllLevelOfGameResponse(HttpStatus.OK.toString(),
                         "Get list level of game successfully", levelDTOS)
         );
+    }
+
+    @Override
+    public ResponseEntity<GetCharacterResponse> getCharacterInfo(String gameName, String serverName) {
+        Game game = gameRepository.findByName(gameName).orElseThrow(
+                () -> new NotFoundException("Name of game not found")
+        );
+        GameServer server = gameServerRepository.findByNameAndGame(serverName, game).orElseThrow(
+                () -> new NotFoundException("Game server not found.")
+        );
+        Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = userRepository.findByUsername(principal.getUsername()).orElseThrow(
+                ()-> new NotFoundException("User not found")
+        );
+
+        if (characterRepository.findByUserAndGameServerAndStatus(user, server, CharacterStatus.INACTIVE) != null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new GetCharacterResponse(HttpStatus.BAD_REQUEST.toString(),
+                            "Character does not active. Please create an charater.", null)
+            );
+        } else if (characterRepository.findByUserAndGameServerAndStatus(user, server, CharacterStatus.DELETED) != null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
+                    new GetCharacterResponse(HttpStatus.FORBIDDEN.toString(),
+                            "Character has been deleted can't enter the game.", null)
+            );
+        }
+        Character character = characterRepository.findByUserAndGameServer(user, server);
+
+        ModelMapper modelMapper = new ModelMapper();
+        CharacterDTO character1 = modelMapper.map(character, (Type) CharacterDTO.class);
+        //Lay level hien tai cua nhan vat
+        LevelProgress levelProgress1 = levelProgressRepository.findFirstByCharacterOrderByLevelUpDateDesc(character).orElseThrow(
+                () -> new NotFoundException("Level progress not found")
+        );
+
+        String subStr1 = levelProgress1.getLevel().getName().substring(6); // từ chỉ mục thứ 6 đến hết chuỗi
+        LevelProgressDTO levelProgressDTO = LevelProgressDTO.builder()
+                .currentLevel(Integer.parseInt(subStr1))
+                .levelPoint(levelProgress1.getExpPoint())
+                .build();
+
+        character1.setCharacterLevel(levelProgressDTO);
+        //Lay attribute cua nhan vat
+        List<CharacterAttribute> characterAttributes = character.getCharacterAttributes();
+        List<CharacterAttributeDTO> characterAttributeDTOs = new ArrayList<>();
+        for (CharacterAttribute characterAttribute : characterAttributes
+        ) {
+            CharacterAttributeDTO characterAttributeDTO = new CharacterAttributeDTO();
+            if (characterAttribute.getAttributeGroup().getName().equalsIgnoreCase(AttributeGroupName.VIGOR.name())) {
+                characterAttributeDTO = CharacterAttributeDTO.builder()
+                        .id(AttributeGroupName.VIGOR.ordinal())
+                        .name(AttributeGroupName.VIGOR.name())
+                        .pointValue(characterAttribute.getValue())
+                        .build();
+
+            } else if (characterAttribute.getAttributeGroup().getName().equalsIgnoreCase(AttributeGroupName.MIND.name())) {
+                characterAttributeDTO = CharacterAttributeDTO.builder()
+                        .id(AttributeGroupName.MIND.ordinal())
+                        .name(AttributeGroupName.MIND.name())
+                        .pointValue(characterAttribute.getValue())
+                        .build();
+            } else if (characterAttribute.getAttributeGroup().getName().equalsIgnoreCase(AttributeGroupName.ENDURANCE.name())) {
+                characterAttributeDTO = CharacterAttributeDTO.builder()
+                        .id(AttributeGroupName.ENDURANCE.ordinal())
+                        .name(AttributeGroupName.ENDURANCE.name())
+                        .pointValue(characterAttribute.getValue())
+                        .build();
+            } else if (characterAttribute.getAttributeGroup().getName().equalsIgnoreCase(AttributeGroupName.STRENGTH.name())) {
+                characterAttributeDTO = CharacterAttributeDTO.builder()
+                        .id(AttributeGroupName.STRENGTH.ordinal())
+                        .name(AttributeGroupName.STRENGTH.name())
+                        .pointValue(characterAttribute.getValue())
+                        .build();
+            } else if (characterAttribute.getAttributeGroup().getName().equalsIgnoreCase(AttributeGroupName.INTELLIGENCE.name())) {
+                characterAttributeDTO = CharacterAttributeDTO.builder()
+                        .id(AttributeGroupName.INTELLIGENCE.ordinal())
+                        .name(AttributeGroupName.INTELLIGENCE.name())
+                        .pointValue(characterAttribute.getValue())
+                        .build();
+            } else if (characterAttribute.getAttributeGroup().getName().equalsIgnoreCase(AttributeGroupName.FLEXIBLE.name())) {
+                characterAttributeDTO = CharacterAttributeDTO.builder()
+                        .id(AttributeGroupName.FLEXIBLE.ordinal())
+                        .name(AttributeGroupName.FLEXIBLE.name())
+                        .pointValue(characterAttribute.getValue())
+                        .build();
+            } else if (characterAttribute.getAttributeGroup().getName().equalsIgnoreCase(AttributeGroupName.DEXTERITY.name())) {
+                characterAttributeDTO = CharacterAttributeDTO.builder()
+                        .id(AttributeGroupName.DEXTERITY.ordinal())
+                        .name(AttributeGroupName.DEXTERITY.name())
+                        .pointValue(characterAttribute.getValue())
+                        .build();
+            }
+            characterAttributeDTOs.add(characterAttributeDTO);
+        }
+
+        character1.setAttribute(characterAttributeDTOs);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(new GetCharacterResponse(HttpStatus.OK.toString(), "Get info of character successfully!", character1));
     }
 
 }

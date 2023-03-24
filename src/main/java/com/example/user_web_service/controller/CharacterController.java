@@ -45,7 +45,7 @@ public class CharacterController {
 //        return characterService.creatCharacter(createCharacterForm);
 //    }
 
-    @Operation(summary = "For get a character for user")
+    @Operation(summary = "For get a character for user in game")
     @GetMapping(value = "/getCharacter", produces = MediaType.APPLICATION_JSON_VALUE)
     @SecurityRequirements
     public ResponseEntity<GetCharacterResponse> getCharacter(
@@ -95,4 +95,22 @@ public class CharacterController {
         }
         return characterService.getAllLevelOfGame(gameName.trim());
     }
+
+    @Operation(summary = "For get information of character")
+    @GetMapping(value = "/getCharacterInfo", produces = MediaType.APPLICATION_JSON_VALUE)
+    @SecurityRequirements
+    public ResponseEntity<GetCharacterResponse> getCharacterInfo(
+            @Parameter(description = "Input name of game", example = "Dead of souls") @RequestParam(name = "gameName") String gameName,
+            @Parameter(description = "Input name of server", example = "server1") @RequestParam(name = "serverName") String serverName
+    ) {
+        if(serverName == null || serverName.isEmpty() || serverName.isBlank() ||
+                gameName == null || gameName.isEmpty() || gameName.isBlank()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new GetCharacterResponse(HttpStatus.BAD_REQUEST.toString(),
+                            "Please input data.", null)
+            );
+        }
+        return characterService.getCharacterInfo(gameName.trim() ,serverName.trim());
+    }
+
 }

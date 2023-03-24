@@ -50,7 +50,7 @@ import java.util.concurrent.CompletableFuture;
 public class AuthServiceImpl implements AuthService {
     private static final Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
 
-    private final String companyEmail = "FA.HCM@fsoft.com.vn";
+    private final String companyEmail = "gamerpg.com.vn";
     @Autowired
     private final ModelMapper mapper;
     @Autowired
