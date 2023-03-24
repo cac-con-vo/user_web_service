@@ -19,6 +19,8 @@ import com.example.user_web_service.repository.*;
 import com.example.user_web_service.security.jwt.GameTokenException;
 import com.example.user_web_service.security.jwt.GameTokenProvider;
 import com.example.user_web_service.service.GameServerService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
@@ -57,6 +59,8 @@ public class GameServerServiceImpl implements GameServerService {
     private RedisValueCache redisValueCache;
     @Autowired
     private DistributedLocker distributedLocker;
+    @Autowired
+    private CharacterDataRepository characterDataRepository;
 
     //    @Override
 //    public ResponseEntity<ResponseObject> createGameServer(GameTokenForm gameTokenForm, String serverName, String gameName, List<String> usernames) {
@@ -340,6 +344,20 @@ public class GameServerServiceImpl implements GameServerService {
                         GameServerInfoDTO gameServerDTOS = new GameServerInfoDTO();
                         Character character = characterRepository.findByUserAndGameServer(user, gameServer);
                         if (character != null) {
+                            int timePlay = 0;
+                            //lay play time
+                            CharacterData characterData = characterDataRepository.findByCharacter(character);
+                            if (characterData != null) {
+                                ObjectMapper objectMapper = new ObjectMapper();
+                                GameDataDTO gameData;
+                                try {
+                                    gameData = objectMapper.readValue(characterData.getJsonString(), GameDataDTO.class);
+                                } catch (JsonProcessingException e) {
+                                    throw new RuntimeException(e);
+                                }
+                                timePlay = gameData.getPlayGameTimeSeconds();
+                            }
+
                             LevelProgress levelProgress1 = levelProgressRepository.findFirstByCharacterOrderByLevelUpDateDesc(character).orElseThrow(
                                     () -> new NotFoundException("Level progress not found")
                             );
@@ -367,6 +385,7 @@ public class GameServerServiceImpl implements GameServerService {
                             gameServerDTOS.setCharacterName(character.getName());
                             gameServerDTOS.setCurrentLevel(Integer.parseInt(subStr1));
                             gameServerDTOS.setUsers(userInGameDTOS);
+                            gameServerDTOS.setPlayTime(timePlay);
                             gameServerInfoDTOS.add(gameServerDTOS);
                         }
                     }
