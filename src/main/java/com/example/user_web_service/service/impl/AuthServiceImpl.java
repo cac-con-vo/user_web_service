@@ -251,7 +251,7 @@ public class AuthServiceImpl implements AuthService {
 
         RLock lock = redissonClient.redissonClient().getLock(username);
         try {
-            if (lock.tryLock(10, 30, TimeUnit.SECONDS)) {
+            if (lock.tryLock(60, 30, TimeUnit.SECONDS)) {
                 Cache userDetailsCache = cacheManager.getCache("userDetails");
                 Cache.ValueWrapper valueWrapper = userDetailsCache.get(username);
                 if (valueWrapper != null) {
@@ -329,7 +329,7 @@ public class AuthServiceImpl implements AuthService {
                 }
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LoginGameResponse(
                         HttpStatus.BAD_REQUEST.toString(),
-                        "You do not login",
+                        "Your account is being logged in somewhere else",
                         null, null, null
                 ));
             } else {
@@ -352,8 +352,7 @@ public class AuthServiceImpl implements AuthService {
             lock.unlock();
         }
     }
-
-                @Override
+    @Override
     public ResponseEntity<ResponseObject> logout(HttpServletRequest request, LogoutForm logoutForm) {
         //delete refresh token
         refreshTokenProvider.deleteByToken(logoutForm.getRefreshToken());
