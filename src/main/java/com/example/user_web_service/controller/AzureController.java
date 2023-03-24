@@ -28,7 +28,7 @@ public class AzureController {
     @Autowired
     private AzureBlobService azureBlobAdapter;
     @Operation(summary = "Upload files to Azure Storage")
-    @PostMapping(value = "/uploadFiles",consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/uploadFiles",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> upload
             (@RequestParam MultipartFile file)
             throws IOException {
@@ -37,14 +37,14 @@ public class AzureController {
         return ResponseEntity.ok(fileName);
     }
     @Operation(summary = "Get all files to Azure Storage")
-    @GetMapping("/getFiles")
+    @GetMapping(value = "/getFiles", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<String>> getAllBlobs() {
 
         List<String> items = azureBlobAdapter.listBlobs();
         return ResponseEntity.ok(items);
     }
     @Operation(summary = "Delete file by name of file from Azure Storage")
-    @DeleteMapping(value = "/deleteFiles", produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = "/deleteFiles")
     public ResponseEntity<Boolean> delete
             (@RequestParam String fileName) {
 
