@@ -2,7 +2,7 @@ package com.example.user_web_service.entity;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.redis.core.RedisHash;
+
 
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;

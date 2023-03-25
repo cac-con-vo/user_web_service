@@ -8,19 +8,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 
 import lombok.*;
-import org.springframework.data.redis.core.RedisHash;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
-
-import javax.annotation.Nullable;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
-import javax.validation.constraints.NotNull;
+
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
+
 import java.util.Date;
 import java.util.List;
 

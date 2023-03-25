@@ -1,7 +1,7 @@
 package com.example.user_web_service.entity;
 
 import lombok.*;
-import org.springframework.data.redis.core.RedisHash;
+
 
 import javax.persistence.*;
 import java.io.Serializable;

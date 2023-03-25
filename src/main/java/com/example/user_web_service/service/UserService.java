@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
-import org.springframework.data.redis.core.RedisTemplate;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContext;
@@ -44,9 +44,8 @@ import java.util.UUID;
 public class UserService extends BaseController {
     private static final Logger LOG = LoggerFactory.getLogger(UserService.class);
 
-    @Autowired
-    private RedisTemplate redisTemplate;
-    private static final String KEY="USER";
+
+
     @Autowired
     UserRepository userRepository;
 
