@@ -34,7 +34,7 @@ public class UserController extends BaseController {
     @Autowired
     private UserRepository userRepository;
     @Operation(summary = "For get list of users")
-    @GetMapping(value = "/listting", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/listUsers", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAll() {
         List<User> allUser = userService.getAllUser();
         ModelMapper modelMapper = new ModelMapper();
@@ -84,7 +84,7 @@ public class UserController extends BaseController {
         return new ResponseEntity<>(responseForm, HttpStatus.OK);
     }
     @Operation(summary = "For updating information of user")
-    @PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/updateUser", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> update(@RequestBody UpdateUserForm updateUserForm) throws ParseException {
         return userService.updateUser(updateUserForm);
     }
