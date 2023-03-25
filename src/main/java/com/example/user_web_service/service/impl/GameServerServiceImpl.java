@@ -12,7 +12,7 @@ import com.example.user_web_service.form.UpdateServerStatusForm;
 import com.example.user_web_service.helper.Constant;
 import com.example.user_web_service.payload.response.GetAllLevelOfGameResponse;
 import com.example.user_web_service.payload.response.GetGameServerOfUserResponse;
-import com.example.user_web_service.redis.RedisValueCache;
+
 
 import com.example.user_web_service.repository.*;
 import com.example.user_web_service.security.jwt.GameTokenException;
@@ -54,8 +54,7 @@ public class GameServerServiceImpl implements GameServerService {
 
     @Autowired
     private GameTokenProvider gameTokenProvider;
-    @Autowired
-    private RedisValueCache redisValueCache;
+
 
     @Autowired
     private CharacterDataRepository characterDataRepository;
