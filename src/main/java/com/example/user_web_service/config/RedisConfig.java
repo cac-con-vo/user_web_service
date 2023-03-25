@@ -16,8 +16,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 @Configuration
 public class RedisConfig {
 
-
-
     @Value("${spring.redis.host}")
     private String redisHost;
 
