@@ -59,7 +59,7 @@ public class SecurityConfig {
 
 
 		// Cho phép truy cập đến các URL được sử dụng trong phương thức AuthController
-		http.authorizeRequests().antMatchers("/api/v1/auth/google/login", "/api/v1/auth/google/callback").permitAll();
+		//http.authorizeRequests().antMatchers("/api/v1/auth/google/login", "/api/v1/auth/google/callback").permitAll();
 
 
 		//Accept not need authenticate
