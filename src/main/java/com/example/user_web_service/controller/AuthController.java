@@ -38,8 +38,7 @@ import java.util.Map;
 @RequestMapping("/api/v1")
 @CrossOrigin
 public class AuthController {
-    @Autowired
-    private OAuth2AuthorizedClientService authorizedClientService;
+
     @Autowired
     private AuthServiceImpl authService;
 
