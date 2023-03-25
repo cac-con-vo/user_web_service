@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import java.net.UnknownHostException;
 import java.util.Map;
 
 @RestController
@@ -83,10 +84,10 @@ public class AuthController {
     }
     @PostMapping(value = "/auth/loginGame", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "For login game")
-    public ResponseEntity<LoginGameResponse> loginGame(HttpServletRequest request,@RequestBody AccessTokenForm accessTokenForm) {
+    public ResponseEntity<LoginGameResponse> loginGame(HttpServletRequest request,@RequestBody AccessTokenForm accessTokenForm) throws UnknownHostException {
         if(accessTokenForm.getAccessToken() == null || accessTokenForm.getAccessToken()
                 .isEmpty() || accessTokenForm.getAccessToken().isBlank()){
-            return new ResponseEntity<LoginGameResponse>(new LoginGameResponse(HttpStatus.BAD_REQUEST.toString(), "Please input refresh token",  null, null, null), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<LoginGameResponse>(new LoginGameResponse(HttpStatus.BAD_REQUEST.toString(), "Please input refresh token",  null, null, null, null), HttpStatus.BAD_REQUEST);
         }
         return authService.validateAccessTokenForLoginGame(request, accessTokenForm);
     }

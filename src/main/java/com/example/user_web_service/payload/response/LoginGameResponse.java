@@ -16,4 +16,5 @@ public class LoginGameResponse {
     private String gameToken;
     private Long userID;
     private String nameOfUser;
+    private String ipAddress;
 }
