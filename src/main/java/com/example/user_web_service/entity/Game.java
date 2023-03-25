@@ -23,4 +23,6 @@ public class Game implements Serializable {
     private String name;
 
     private String logo;
+
+    private String linkDownload;
 }
