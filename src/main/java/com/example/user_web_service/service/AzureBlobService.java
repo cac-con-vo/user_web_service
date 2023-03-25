@@ -26,13 +26,10 @@ public class AzureBlobService {
     public String upload(MultipartFile multipartFile)
             throws IOException {
 
-        // Todo UUID
-        BlobClient blob = blobContainerClient
-                .getBlobClient(multipartFile.getOriginalFilename());
-        blob.upload(multipartFile.getInputStream(),
-                multipartFile.getSize(), true);
-
-        return multipartFile.getOriginalFilename();
+        String fileName = multipartFile.getOriginalFilename();
+        BlobClient blob = blobContainerClient.getBlobClient(fileName);
+        blob.upload(multipartFile.getInputStream(), multipartFile.getSize(), true);
+        return blob.getBlobUrl();
     }
 
     public byte[] getFile(String fileName)
