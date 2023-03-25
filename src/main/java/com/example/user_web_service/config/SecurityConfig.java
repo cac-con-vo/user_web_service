@@ -58,6 +58,9 @@ public class SecurityConfig {
 		http.cors().and().csrf().disable();
 
 
+		// Cho phép truy cập đến các URL được sử dụng trong phương thức AuthController
+		http.authorizeRequests().antMatchers("/api/v1/auth/google/login", "/api/v1/auth/google/callback").permitAll();
+
 
 		//Accept not need authenticate
 		http.authorizeRequests().antMatchers("/swagger-ui/**", "/v3/api-docs/**","/api/v1/auth/login", "/api/v1/auth/accessToken",
