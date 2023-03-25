@@ -9,8 +9,7 @@ import com.example.user_web_service.form.*;
 import com.example.user_web_service.payload.response.GameTokenResponse;
 import com.example.user_web_service.payload.response.LoginGameResponse;
 import com.example.user_web_service.payload.response.RefreshTokenResponse;
-import com.example.user_web_service.redis.locker.DistributedLocker;
-import com.example.user_web_service.redis.locker.LockExecutionResult;
+
 import com.example.user_web_service.repository.UserRepository;
 import com.example.user_web_service.security.jwt.*;
 import com.example.user_web_service.security.userprincipal.Principal;
@@ -69,8 +68,7 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private BlackAccessTokenServiceImp blackAccessTokenServiceImp;
 
-    @Autowired
-    private DistributedLocker distributedLocker;
+
     @Autowired
     private UserRepository userRepository;
 

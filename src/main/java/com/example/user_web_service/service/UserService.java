@@ -12,7 +12,6 @@ import com.example.user_web_service.exception.UserNotFoundException;
 import com.example.user_web_service.form.*;
 import com.example.user_web_service.helper.Constant;
 import com.example.user_web_service.helper.EmailService;
-import com.example.user_web_service.redis.locker.DistributedLocker;
 import com.example.user_web_service.repository.RoleRepository;
 import com.example.user_web_service.repository.UserRepository;
 import com.example.user_web_service.security.MyAuthentication;
